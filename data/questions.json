@@ -1,83 +1,163 @@
 {
-    "version": 1,
-    "isActive": true,
-    "sections": [
-        {
-            "id": "chief_complaint",
-            "title": "প্রধান সমস্যা (Chief Complaint)",
-            "fields": [
-                {
-                    "id": "main_problem",
-                    "label": "আপনার প্রধান সমস্যাটি বিস্তারিত লিখুন",
-                    "type": "textarea",
-                    "required": true,
-                    "placeholder": "উদাহরণ: গত ৩ দিন ধরে তীব্র মাথাব্যথা..."
-                },
-                {
-                    "id": "duration",
-                    "label": "সমস্যাটি কতদিন ধরে?",
-                    "type": "text",
-                    "required": true,
-                    "placeholder": "যেমন: ২ মাস"
-                }
-            ]
-        },
-        {
-            "id": "physical_generals",
-            "title": "শারীরিক সাধারণ লক্ষণ (Physical Generals)",
-            "fields": [
-                {
-                    "id": "appetite",
-                    "label": "আপনার ক্ষুধা কেমন?",
-                    "type": "mcq",
-                    "renderAs": "buttons",
-                    "options": [
-                        "স্বাভাবিক",
-                        "কম",
-                        "বেশি",
-                        "একেবারেই নেই"
-                    ],
-                    "required": false
-                },
-                {
-                    "id": "thirst",
-                    "label": "পিপাসা কেমন?",
-                    "type": "select",
-                    "options": [
-                        "কম",
-                        "স্বাভাবিক",
-                        "প্রচুর",
-                        "বরফ শীতল পানি চাই"
-                    ],
-                    "required": false
-                }
-            ]
-        },
-        {
-            "id": "mind",
-            "title": "মানসিক লক্ষণ (Mind)",
-            "fields": [
-                {
-                    "id": "anger",
-                    "label": "আপনার রাগ কেমন?",
-                    "type": "mcq",
-                    "renderAs": "buttons",
-                    "options": [
-                        "খুব কম",
-                        "মাঝারি",
-                        "প্রচণ্ড",
-                        "রাগলে আর নিয়ন্ত্রণ থাকে না"
-                    ],
-                    "required": false
-                },
-                {
-                    "id": "memory",
-                    "label": "স্মৃতিশক্তি সম্পর্কে বলুন",
-                    "type": "textarea",
-                    "required": false,
-                    "placeholder": "কোনো বিশেষ ঘটনা মনে রাখতে সমস্যা হয়?"
-                }
-            ]
-        }
-    ]
+  "version": 1,
+  "isActive": true,
+  "sections": [
+    {
+      "id": "basic_data",
+      "title": "রোগীর সাধারণ পরিচয় (Basic Data)",
+      "fields": [
+        {"id": "name", "label": "নাম", "type": "text", "required": true, "placeholder": "আপনার নাম লিখুন"},
+        {"id": "age", "label": "বয়স", "type": "text", "required": true, "placeholder": "যেমন: ৩০ বছর"},
+        {"id": "gender", "label": "লিঙ্গ", "type": "mcq", "renderAs": "buttons", "options": ["পুরুষ", "নারী", "বালক", "বালিকা"], "required": true},
+        {"id": "marital_status", "label": "বৈবাহিক অবস্থা", "type": "select", "options": ["বিবাহিত", "অবিবাহিত", "ডিভোর্স", "বিধবা"], "required": true},
+        {"id": "occupation", "label": "পেশা/জীবনযাত্রার ধরন", "type": "text", "placeholder": "যেমন: কৃষি, চাকুরী, ব্যবসায়ী"},
+        {"id": "height", "label": "উচ্চতা", "type": "text", "placeholder": "যেমন: ৫ফুট ৬ইঞ্চি"},
+        {"id": "weight", "label": "ওজন", "type": "text", "placeholder": "যেমন: ৬৫ কেজি"},
+        {"id": "living_environment", "label": "বসবাস পরিবেশ", "type": "mcq", "renderAs": "buttons", "options": ["শহর", "গ্রাম", "স্যাঁতসেঁতে", "শুষ্ক"]},
+        {"id": "address", "label": "ঠিকানা", "type": "textarea", "placeholder": "আপনার ঠিকানা লিখুন"}
+      ]
+    },
+    {
+      "id": "chief_complaints",
+      "title": "প্রধান অভিযোগ (Chief Complaints)",
+      "fields": [
+        {"id": "problem", "label": "কী সমস্যা", "type": "textarea", "required": true},
+        {"id": "duration", "label": "সমস্যাটি কতদিন ধরে?", "type": "text", "required": true},
+        {"id": "onset", "label": "কীভাবে শুরু হলো?", "type": "select", "options": ["ধীরে", "হঠাৎ", "শারীরিক আঘাত", "মানসিক আঘাত"]},
+        {"id": "progression", "label": "ধীরে বাড়ছে না কমছে", "type": "select", "options": ["বৃদ্ধি", "হ্রাস"]},
+        {"id": "previous_occurrence", "label": "আগে এমন হয়েছিল?", "type": "mcq", "options": ["হ্যাঁ", "না"]}
+      ]
+    },
+    {
+      "id": "physical_generals",
+      "title": "শারীরিক লক্ষণ (Physical Generals)",
+      "fields": [
+        {"id": "appetite", "label": "ক্ষুধা", "type": "select", "options": ["বেশি", "কম", "অনিয়মিত"]},
+        {"id": "thirst", "label": "তৃষ্ণা", "type": "select", "options": ["বেশি", "কম"]},
+        {"id": "food_temperature_preference", "label": "ঠান্ডা না গরম খাবার ও পানি পছন্দ?", "type": "select", "options": ["গরম", "ঠান্ডা"]},
+        {"id": "food_desires", "label": "খাদ্যাভ্যাস (Desires & Aversions)", "type": "textarea", "placeholder": "মিষ্টি, ঝাল, টক, লবণ, মাংস, ডিম"},
+        {"id": "food_avoidance", "label": "অপছন্দ কোন খাবার", "type": "select", "options": ["টক", "ঝাল", "মিষ্টি", "তিতা"]},
+        {"id": "food_trigger", "label": "কোন খাবারে সমস্যা বাড়ে", "type": "textarea"},
+        {"id": "heat_tolerance", "label": "গরম সহ্য করতে পারে", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "cold_tolerance", "label": "ঠান্ডা সহ্য করতে পারে", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "open_air_comfort", "label": "খোলা বাতাসে", "type": "select", "options": ["আরাম", "কষ্ট"]},
+        {"id": "sleep_depth", "label": "ঘুম গভীর না হালকা", "type": "select", "options": ["গভীর", "হালকা"]},
+        {"id": "sleep_breaks", "label": "মাঝ রাতে ঘুম ভেঙে যায়?", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "sleep_break_time", "label": "কোন সময় ঘুম ভাঙে?", "type": "select", "options": ["রাতে", "ভোরে", "সকাল"]},
+        {"id": "dreams", "label": "স্বপ্ন", "type": "textarea"},
+        {"id": "stool_type", "label": "মল", "type": "select", "options": ["কোষ্ঠকাঠিন্য", "পাতলা", "স্বাভাবিক"]},
+        {"id": "stool_time", "label": "সময়", "type": "select", "options": ["সকাল", "দুপুর", "রাতে", "অনিয়মিত"]},
+        {"id": "stool_color", "label": "রং", "type": "select", "options": ["হলুদ", "সবুজ", "কালো", "ধুসর"]},
+        {"id": "stool_smell", "label": "গন্ধ", "type": "select", "options": ["দুর্গন্ধ", "টকগন্ধ", "স্বাভাবিক"]},
+        {"id": "urine", "label": "প্রস্রাব", "type": "textarea"},
+        {"id": "sweat_amount", "label": "ঘাম", "type": "select", "options": ["বেশি", "কম"]},
+        {"id": "sweat_location", "label": "কোন জায়গায়", "type": "textarea"},
+        {"id": "sweat_smell", "label": "গন্ধ আছে?", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "sweat_discomfort", "label": "ঘামলে", "type": "select", "options": ["আরাম", "কষ্ট"]}
+      ]
+    },
+    {
+      "id": "particular_symptoms",
+      "title": "স্থানীয় শারীরিক লক্ষণ (Particular Symptoms)",
+      "fields": [
+        {"id": "pain_type", "label": "ব্যথার ধরন", "type": "select", "options": ["খোঁচা", "জ্বালা", "টান", "ভার"]},
+        {"id": "pain_time", "label": "কোন সময় বাড়ে", "type": "select", "options": ["দিন", "রাত"]},
+        {"id": "pain_relief", "label": "আরাম", "type": "select", "options": ["নড়াচড়া", "চাপ", "বিশ্রামে"]},
+        {"id": "pain_worse", "label": "কষ্ট বৃদ্ধি", "type": "select", "options": ["নড়াচড়া", "চাপ", "বিশ্রামে"]},
+        {"id": "associated_symptoms", "label": "সমস্যা সাথে অন্য উপসর্গ", "type": "textarea"}
+      ]
+    },
+    {
+      "id": "mental_symptoms",
+      "title": "মানসিক লক্ষণ (Mental Symptoms)",
+      "fields": [
+        {"id": "temperament", "label": "স্বভাব", "type": "select", "options": ["শান্ত", "রাগী", "উদ্বিগ্ন"]},
+        {"id": "fear", "label": "ভয়", "type": "textarea"},
+        {"id": "tendencies", "label": "প্রবনতা", "type": "textarea"},
+        {"id": "suspicious", "label": "সন্দেহপ্রবণ", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "self_confidence", "label": "আত্মবিশ্বাস", "type": "select", "options": ["কম", "বেশি"]},
+        {"id": "memory_attention", "label": "স্মৃতিশক্তি ও মনোযোগ", "type": "select", "options": ["কম", "বেশি"]},
+        {"id": "mental_trauma", "label": "মানসিক আঘাত", "type": "textarea"},
+        {"id": "mental_factor_effect", "label": "কীসে মানসিক সমস্যা বাড়ে/কমে", "type": "textarea"}
+      ]
+    },
+    {
+      "id": "female_specific",
+      "title": "নারী রোগীর ক্ষেত্রে বিশেষ তথ্য",
+      "fields": [
+        {"id": "menstruation_start_age", "label": "ঋতুর কত বয়সে শুরু", "type": "text"},
+        {"id": "menstruation_cycle", "label": "ঋতু", "type": "select", "options": ["নিয়মিত", "অনিয়মিত"]},
+        {"id": "menstruation_color", "label": "রং", "type": "select", "options": ["লাল", "কালো", "কালছে"]},
+        {"id": "menstruation_amount", "label": "পরিমাণ", "type": "select", "options": ["কম", "বেশি", "স্বাভাবিক"]},
+        {"id": "menstruation_pain", "label": "ব্যথা", "type": "select", "options": ["কম", "বেশি", "নাই"]},
+        {"id": "leukorrhea", "label": "লিউকোরিয়া", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "leukorrhea_type", "label": "লিউকোরিয়া ধরণ", "type": "select", "options": ["পাতলা", "ঘন"]},
+        {"id": "leukorrhea_smell", "label": "লিউকোরিয়া গন্ধ", "type": "select", "options": ["দুগন্ধ", "স্বাভাবিক"]},
+        {"id": "abortion", "label": "গর্ভপাত", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "abortion_count", "label": "সংখ্যা", "type": "text"},
+        {"id": "children_count", "label": "সন্তান সংখ্যা", "type": "text"}
+      ]
+    },
+    {
+      "id": "male_specific",
+      "title": "পুরুষ রোগীর ক্ষেত্রে",
+      "fields": [
+        {"id": "sexual_desire", "label": "যৌন ইচ্ছা", "type": "select", "options": ["কম", "বেশি", "স্বাভাবিক"]},
+        {"id": "erectile_function", "label": "স্থায়িত্ব", "type": "select", "options": ["কম", "স্বাভাবিক"]},
+        {"id": "night_emission", "label": "স্বপ্নদোষ", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "testicle_condition", "label": "অন্ডকোষ", "type": "textarea", "placeholder": "ব্যথা, ফোলা, ছোট"},
+        {"id": "testicle_side", "label": "অন্ডকোষ", "type": "select", "options": ["বাম", "ডান", "উভয়"]},
+        {"id": "prostate_problem", "label": "প্রোস্টেট সমস্যা", "type": "select", "options": ["বৃদ্ধি", "ছোট"]}
+      ]
+    },
+    {
+      "id": "past_history",
+      "title": "অতীত ইতিহাস (Past History)",
+      "fields": [
+        {"id": "major_illness", "label": "পূর্বের বড় রোগ", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "operation", "label": "অপারেশন", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "injury", "label": "আঘাত", "type": "mcq", "options": ["হ্যাঁ", "না"]},
+        {"id": "long_term_allopathy", "label": "দীর্ঘদিনের এলোপ্যাথি বা স্টেরয়েড সেবন", "type": "mcq", "options": ["হ্যাঁ", "না"]}
+      ]
+    },
+    {
+      "id": "family_history",
+      "title": "পারিবারিক ইতিহাস (Family History)",
+      "fields": [
+        {"id": "diabetes", "label": "ডায়াবেটিস", "type": "textarea", "placeholder": "বাবা, মা, ভাই, বোন"},
+        {"id": "hypertension", "label": "উচ্চ রক্তচাপ", "type": "textarea", "placeholder": "বাবা, মা, ভাই, বোন"},
+        {"id": "asthma", "label": "হাঁপানি", "type": "textarea", "placeholder": "বাবা, মা, ভাই, বোন"},
+        {"id": "cancer", "label": "ক্যান্সার", "type": "textarea", "placeholder": "বাবা, মা, ভাই, বোন"},
+        {"id": "mental_illness", "label": "মানসিক রোগ", "type": "textarea", "placeholder": "বাবা, মা, ভাই, বোন"}
+      ]
+    },
+    {
+      "id": "aetiology",
+      "title": "রোগের কারণ (Aetiology)",
+      "fields": [
+        {"id": "cause", "label": "রোগের কারণ", "type": "textarea", "placeholder": "ঠান্ডা লাগা, ভেজা, মানসিক আঘাত, শারীরিক আঘাত, অতিরিক্ত পরিশ্রম"}
+      ]
+    },
+    {
+      "id": "totality",
+      "title": "রোগীর সামগ্রিক মূল্যায়ন (Totality)",
+      "fields": [
+        {"id": "unique_symptoms", "label": "সবচেয়ে অদ্ভুত, বিরল, ব্যক্তিগত লক্ষণ", "type": "textarea"},
+        {"id": "mental_physical_general", "label": "মানসিক + শারীরিক জেনারেল", "type": "textarea"}
+      ]
+    },
+    {
+  "id": "doctor_advice",
+  "title": "ডাক্তার এর পরামর্শ (Doctor's Advice)",
+  "fields": [
+    {
+      "id": "advice",
+      "label": "ডাক্তার এর মন্তব্য/পরামর্শ লিখুন",
+      "type": "textarea",
+      "placeholder": "ডাক্তার এখানে তার মন্তব্য লিখবেন",
+      "required": false
+    }
+  ]
+}
+  ]
 }
