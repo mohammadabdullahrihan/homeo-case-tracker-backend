@@ -128,3 +128,20 @@ exports.getDashboardStats = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to fetch stats' });
     }
 };
+
+// Delete a case
+exports.deleteCase = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const caseItem = await Case.findOneAndDelete({ _id: req.params.id, user: userId });
+
+        if (!caseItem) {
+            return res.status(404).json({ success: false, message: 'Case not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'Case deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting case:', error);
+        res.status(500).json({ success: false, message: 'Failed to delete case' });
+    }
+};
