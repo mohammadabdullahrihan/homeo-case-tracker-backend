@@ -66,11 +66,19 @@ exports.generateCaseSummary = async (req, res) => {
     }
 };
 
-// Get all cases (filtered by user)
+// Get all cases (filtered by user and optional search)
 exports.getAllCases = async (req, res) => {
     try {
         const userId = req.user.id;
-        const cases = await Case.find({ user: userId }).sort({ createdAt: -1 });
+        const { search } = req.query;
+
+        let query = { user: userId };
+
+        if (search) {
+            query.patientName = { $regex: search, $options: 'i' }; // Case-insensitive search
+        }
+
+        const cases = await Case.find(query).sort({ createdAt: -1 });
         res.status(200).json({ success: true, cases });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch cases' });
@@ -78,7 +86,7 @@ exports.getAllCases = async (req, res) => {
 };
 
 // Get single case
-exports.getCaseIds = async (req, res) => {
+exports.getCaseById = async (req, res) => {
     try {
         const caseItem = await Case.findOne({ _id: req.params.id, user: req.user.id });
         if (!caseItem) {
@@ -87,6 +95,45 @@ exports.getCaseIds = async (req, res) => {
         res.status(200).json({ success: true, case: caseItem });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch case' });
+    }
+};
+
+// Update a case
+exports.updateCase = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { caseData } = req.body;
+        
+        // Metadata updates
+        const patientName = caseData.name || 'Unknown';
+        const patientAge = caseData.age || '';
+        const patientSex = caseData.sex || '';
+
+        const caseItem = await Case.findOneAndUpdate(
+            { _id: req.params.id, user: userId },
+            { 
+                caseData,
+                patientName,
+                patientAge,
+                patientSex
+                // We do NOT update summary automatically here, as it might overwrite AI summary.
+                // Summary regeneration is a separate action.
+            },
+            { new: true }
+        );
+
+        if (!caseItem) {
+            return res.status(404).json({ success: false, message: 'Case not found' });
+        }
+
+        res.status(200).json({
+            success: true,
+            case: caseItem,
+            message: 'Case updated successfully'
+        });
+    } catch (error) {
+        console.error('Error updating case:', error);
+        res.status(500).json({ success: false, message: 'Failed to update case' });
     }
 };
 
