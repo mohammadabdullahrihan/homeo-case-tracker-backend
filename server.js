@@ -21,7 +21,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/homeo-cas
     .catch((err) => console.error('❌ MongoDB connection error:', err));
 
 // Routes
+// Routes
 app.use('/api/case', caseRoutes);
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/config', require('./routes/configRoutes'));
 
 // Health Check
 app.get('/', (req, res) => {

@@ -5,6 +5,7 @@ const { generateSummary } = require('../services/aiService');
 exports.createCase = async (req, res) => {
     try {
         const { caseData } = req.body;
+        const userId = req.user.id;
 
         // Extract basic info for metadata if available
         const patientName = caseData.name || 'Unknown';
@@ -12,6 +13,7 @@ exports.createCase = async (req, res) => {
         const patientSex = caseData.sex || '';
 
         const newCase = new Case({
+            user: userId,
             caseData,
             patientName,
             patientAge,
@@ -39,10 +41,6 @@ exports.generateCaseSummary = async (req, res) => {
     try {
         const { caseId, caseData } = req.body;
 
-        // If caseId is provided, we might want to update the existing record
-        // But for MVP, we just generate based on the passed data or fetch if needed.
-        // Here we use the passed data directly for speed, and optionally update the DB.
-
         if (!caseData) {
             return res.status(400).json({ success: false, message: 'Case data is required' });
         }
@@ -63,16 +61,16 @@ exports.generateCaseSummary = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to generate summary',
-            error: error.message,
-            stack: error.stack
+            error: error.message
         });
     }
 };
 
-// Get all cases
+// Get all cases (filtered by user)
 exports.getAllCases = async (req, res) => {
     try {
-        const cases = await Case.find().sort({ createdAt: -1 });
+        const userId = req.user.id;
+        const cases = await Case.find({ user: userId }).sort({ createdAt: -1 });
         res.status(200).json({ success: true, cases });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch cases' });
@@ -82,7 +80,7 @@ exports.getAllCases = async (req, res) => {
 // Get single case
 exports.getCaseIds = async (req, res) => {
     try {
-        const caseItem = await Case.findById(req.params.id);
+        const caseItem = await Case.findOne({ _id: req.params.id, user: req.user.id });
         if (!caseItem) {
             return res.status(404).json({ success: false, message: 'Case not found' });
         }
@@ -90,4 +88,43 @@ exports.getCaseIds = async (req, res) => {
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch case' });
     }
-}
+};
+
+// Get Dashboard Stats
+exports.getDashboardStats = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // 1. Total Patients
+        const totalPatients = await Case.countDocuments({ user: userId });
+
+        // 2. Today's Cases
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        const endOfToday = new Date();
+        endOfToday.setHours(23, 59, 59, 999);
+
+        const todayCases = await Case.countDocuments({
+            user: userId,
+            createdAt: { $gte: startOfToday, $lte: endOfToday }
+        });
+
+        // 3. Pending Review (Cases without summary)
+        const pendingReview = await Case.countDocuments({
+            user: userId,
+            summary: { $in: ['', null] }
+        });
+
+        res.status(200).json({
+            success: true,
+            stats: {
+                totalPatients,
+                todayCases,
+                pendingReview
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching stats:', error);
+        res.status(500).json({ success: false, message: 'Failed to fetch stats' });
+    }
+};

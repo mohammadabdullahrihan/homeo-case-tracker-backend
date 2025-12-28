@@ -1,0 +1,83 @@
+{
+    "version": 1,
+    "isActive": true,
+    "sections": [
+        {
+            "id": "chief_complaint",
+            "title": "প্রধান সমস্যা (Chief Complaint)",
+            "fields": [
+                {
+                    "id": "main_problem",
+                    "label": "আপনার প্রধান সমস্যাটি বিস্তারিত লিখুন",
+                    "type": "textarea",
+                    "required": true,
+                    "placeholder": "উদাহরণ: গত ৩ দিন ধরে তীব্র মাথাব্যথা..."
+                },
+                {
+                    "id": "duration",
+                    "label": "সমস্যাটি কতদিন ধরে?",
+                    "type": "text",
+                    "required": true,
+                    "placeholder": "যেমন: ২ মাস"
+                }
+            ]
+        },
+        {
+            "id": "physical_generals",
+            "title": "শারীরিক সাধারণ লক্ষণ (Physical Generals)",
+            "fields": [
+                {
+                    "id": "appetite",
+                    "label": "আপনার ক্ষুধা কেমন?",
+                    "type": "mcq",
+                    "renderAs": "buttons",
+                    "options": [
+                        "স্বাভাবিক",
+                        "কম",
+                        "বেশি",
+                        "একেবারেই নেই"
+                    ],
+                    "required": false
+                },
+                {
+                    "id": "thirst",
+                    "label": "পিপাসা কেমন?",
+                    "type": "select",
+                    "options": [
+                        "কম",
+                        "স্বাভাবিক",
+                        "প্রচুর",
+                        "বরফ শীতল পানি চাই"
+                    ],
+                    "required": false
+                }
+            ]
+        },
+        {
+            "id": "mind",
+            "title": "মানসিক লক্ষণ (Mind)",
+            "fields": [
+                {
+                    "id": "anger",
+                    "label": "আপনার রাগ কেমন?",
+                    "type": "mcq",
+                    "renderAs": "buttons",
+                    "options": [
+                        "খুব কম",
+                        "মাঝারি",
+                        "প্রচণ্ড",
+                        "রাগলে আর নিয়ন্ত্রণ থাকে না"
+                    ],
+                    "required": false
+                },
+                {
+                    "id": "memory",
+                    "label": "স্মৃতিশক্তি সম্পর্কে বলুন",
+                    "type": "textarea",
+                    "required": false,
+                    "placeholder": "কোনো বিশেষ ঘটনা মনে রাখতে সমস্যা হয়?"
+                }
+            ]
+        }
+    ]
+}
