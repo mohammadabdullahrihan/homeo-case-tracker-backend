@@ -1,9 +1,0 @@
-{
-    "caseData": {
-        "name": "Test Patient",
-        "age": "30",
-        "sex": "Male",
-        "complaint": "Headache",
-        "history": "None"
-    }
-}

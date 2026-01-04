@@ -9,34 +9,23 @@ const genAI = new GoogleGenerativeAI(apiKey || 'dummy_key');
 
 const generateSummary = async (caseData) => {
     try {
-        console.log("Using API Key:", apiKey ? "Present (Starts with " + apiKey.substring(0, 4) + ")" : "Missing");
         if (!apiKey) {
             throw new Error("GEMINI_API_KEY is missing from environment variables.");
         }
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash", // Using 2.0-flash as it's more stable/available usually, or keeping what's there
+            generationConfig: {
+                responseMimeType: "application/json",
+            },
             safetySettings: [
-                {
-                    category: HarmCategory.HARM_CATEGORY_HARASSMENT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                },
-                {
-                    category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                    threshold: HarmBlockThreshold.BLOCK_NONE,
-                },
+                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
             ]
         });
 
-        // Format the case data
         const formattedData = Object.entries(caseData)
             .map(([key, value]) => {
                 if (typeof value === 'object' && value !== null) {
@@ -48,39 +37,46 @@ const generateSummary = async (caseData) => {
 
         const prompt = `
       You are an experienced homeopathic physician.
-      Your job is to write a concise, doctor-readable Bangla case summary based on the following patient data.
-      
-      RULES:
-      1. Do NOT diagnose.
-      2. Do NOT suggest medicine.
-      3. Do NOT add extra information not present in the data.
-      4. Remove repetition.
-      5. Keep the tone clinical, calm, and professional.
-      6. Write in Bengali (Bangla) ONLY.
-      7. Write as plain text paragraphs. Do NOT use any markdown formatting (no *, #, -, etc.).
-      8. Do NOT use phrases like "বর্ণনা করা হয়েছে", "উল্লেখ করা হয়েছে" or similar passive descriptions.
-      9. Do NOT add headings like "কেস সারাংশ" or any title. Start directly with the patient information.
-      10. Focus on the Totality of Symptoms.
-      11. Write in a direct, active voice describing the patient's condition.
+      Based on the provided patient data, perform two tasks:
+      1. Write a clinical, doctor-readable Bangla case summary.
+      2. Identify a list of 5-10 key clinical symptoms (rubrics) in English that can be used to search a homeopathic repertory.
+
+      RULES for Summary:
+      - Write in Bengali (Bangla) ONLY.
+      - Keep it clinical, professional, and active voice.
+      - Do NOT diagnose or suggest medicine.
+      - Focus on Totality of Symptoms.
+      - Plain text format without markdown.
+
+      RULES for Symptoms (Rubrics):
+      - Write in English.
+      - Use standard homeopathic repertory terminology (e.g., "Thirstless", "Fear of death", "Desire for open air", "Worse in evening").
+      - Only include symptoms present in the data.
 
       PATIENT DATA:
       ${formattedData}
       
-      OUTPUT (Write only the clean Bangla case summary, nothing else):
+      OUTPUT FORMAT:
+      Return ONLY a JSON object with the following structure:
+      {
+        "summary": "The Bangla summary text here",
+        "symptoms": ["Symptom 1", "Symptom 2", ...]
+      }
     `;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-
-        let text = '';
+        const text = response.text();
+        
         try {
-            text = response.text();
+            return JSON.parse(text);
         } catch (e) {
-            console.error('Gemini text retrieval error (Safety/Block?):', e);
-            text = 'AI Summary could not be generated due to safety filters or API limits. Please review the raw data.';
+            console.error('JSON Parse Error from Gemini:', text);
+            return {
+                summary: text.substring(0, 500), // Fallback
+                symptoms: []
+            };
         }
-
-        return text;
 
     } catch (error) {
         console.error('Error generating AI summary with Gemini:', error);

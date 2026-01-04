@@ -23,10 +23,19 @@ const caseSchema = new mongoose.Schema({
         default: '',
     },
 
-    // Optional: Metadata for easier querying later
+    // Metadata for easier querying
     patientName: String,
     patientAge: String,
     patientSex: String,
+
+    // Stores suggested remedies from repertory
+    suggestedRemedies: [
+        {
+            abbreviation: String,
+            fullName: String,
+            score: Number
+        }
+    ]
 });
 
 module.exports = mongoose.model('Case', caseSchema);

@@ -36,6 +36,9 @@ exports.createCase = async (req, res) => {
     }
 };
 
+const { suggestRemedies } = require('../services/remedyService');
+const FormConfig = require('../models/FormConfig');
+
 // Generate Summary for a specific case
 exports.generateCaseSummary = async (req, res) => {
     try {
@@ -45,22 +48,61 @@ exports.generateCaseSummary = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Case data is required' });
         }
 
-        const summary = await generateSummary(caseData);
+        // --- NEW: Map technical IDs to Labs for AI context ---
+        // Fetch labels from configuration to help AI understand "f_123" fields
+        let labelMappedData = { ...caseData };
+        try {
+            const config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
+            if (config) {
+                const labelMap = {};
+                config.sections.forEach(sec => {
+                    sec.fields.forEach(f => {
+                        labelMap[f.id] = f.label;
+                    });
+                });
 
-        // If caseId exists, save the summary to it
+                // Create a copy with human-readable keys
+                labelMappedData = {};
+                Object.entries(caseData).forEach(([key, value]) => {
+                    const label = labelMap[key] || key;
+                    labelMappedData[label] = value;
+                });
+            }
+        } catch (configErr) {
+            console.warn('Could not map labels for AI, using raw keys:', configErr.message);
+        }
+        // -----------------------------------------------------
+
+        // 1. Generate AI Summary and extract symptoms
+        const aiResponse = await generateSummary(labelMappedData);
+        // aiResponse contains { summary: "...", symptoms: ["...", "..."] }
+        
+        const summary = aiResponse.summary;
+        const symptoms = aiResponse.symptoms || [];
+
+        // 2. Map symptoms to repertory remedies
+        const remedies = suggestRemedies(symptoms);
+
+        // 3. If caseId exists, save the summary to it
         if (caseId) {
-            await Case.findByIdAndUpdate(caseId, { summary });
+            await Case.findByIdAndUpdate(caseId, { 
+                summary,
+                // Optionally save remedies if the schema supports it
+                // We'll assume the schema might need an update or just return it for now
+                suggestedRemedies: remedies 
+            });
         }
 
         res.status(200).json({
             success: true,
-            summary
+            summary,
+            remedies
         });
     } catch (error) {
-        console.error('Error generating summary:', error);
+        console.error('Error generating summary or remedies:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to generate summary',
+            message: 'Failed to generate summary and remedies',
             error: error.message
         });
     }
