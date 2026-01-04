@@ -32,16 +32,30 @@ const suggestRemedies = (symptoms, limit = 5) => {
 
         // Iterate through each symptom keyword
         symptoms.forEach(symptom => {
-            const searchTerms = symptom.toLowerCase().split(' ');
+            // Clean the symptom string: remove punctuation like ; , and - then split
+            const cleanedSymptom = symptom.replace(/[;,\-]/g, ' ').toLowerCase();
+            const searchTerms = cleanedSymptom.split(/\s+/).filter(term => term.length >= 3);
             
+            console.log(`Searching for symptom: "${symptom}" | Cleaned: "${cleanedSymptom}" | Terms:`, searchTerms);
+
             // Search through categories and rubrics
             repertoryData.categories.forEach(category => {
+                const categoryTitle = category.title.toLowerCase();
+                
                 category.rubrics.forEach(rubric => {
                     const rubricTitle = rubric.title.toLowerCase();
+                    const fullSearchSpace = `${categoryTitle} ${rubricTitle}`.replace(/[;,\-]/g, ' ');
+                    const spaceWords = fullSearchSpace.split(/\s+/).filter(w => w.length >= 3);
                     
-                    // Simple matching: check if all search terms are present in the rubric title
-                    // Or if the rubric title contains the exact symptom string
-                    const isMatch = searchTerms.every(term => rubricTitle.includes(term)) || rubricTitle.includes(symptom.toLowerCase());
+                    // Match if at least 2 search terms are found (or all if less than 2)
+                    const matchedTerms = searchTerms.filter(term => {
+                        return spaceWords.some(word => 
+                            word.includes(term) || term.includes(word)
+                        );
+                    });
+
+                    const isMatch = searchTerms.length > 0 && 
+                                   matchedTerms.length >= Math.min(searchTerms.length, 2);
 
                     if (isMatch) {
                         rubric.remedies.forEach(rem => {
@@ -57,6 +71,8 @@ const suggestRemedies = (symptoms, limit = 5) => {
                 });
             });
         });
+
+        console.log(`Total remedies found: ${Object.keys(remedyScores).length}`);
 
         // Convert to array and map to full names
         const suggestions = Object.keys(remedyScores).map(abbr => {

@@ -14,7 +14,7 @@ const generateSummary = async (caseData) => {
         }
 
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.0-flash", // Using 2.0-flash as it's more stable/available usually, or keeping what's there
+            model: "gemini-2.5-flash", 
             generationConfig: {
                 responseMimeType: "application/json",
             },
@@ -49,9 +49,17 @@ const generateSummary = async (caseData) => {
       - Plain text format without markdown.
 
       RULES for Symptoms (Rubrics):
-      - Write in English.
-      - Use standard homeopathic repertory terminology (e.g., "Thirstless", "Fear of death", "Desire for open air", "Worse in evening").
+      - For each symptom, provide TWO fields:
+        1. "clinical": The technical English rubric. Use ONLY these categories: MIND, HEAD, EYE, VISION, EAR, HEARING, NOSE, FACE, MOUTH, TEETH, THROAT, ABDOMEN, COUGH, FEVER, SKIN, SLEEP, PERSPIRATION, VERTIGO.
+        2. "friendly": A very simple Bangla translation (e.g., "মাথা ব্যথা", "অতিরিক্ত রাগ").
       - Only include symptoms present in the data.
+      - Aim for 8-12 key symptoms.
+
+      EXAMPLES:
+      - "MIND - ANGER"
+      - "SKIN - ITCHING"
+      - "ABDOMEN - DESIRES - cold drinks"
+      - "PERSPIRATION - PROFUSE"
 
       PATIENT DATA:
       ${formattedData}
@@ -60,7 +68,10 @@ const generateSummary = async (caseData) => {
       Return ONLY a JSON object with the following structure:
       {
         "summary": "The Bangla summary text here",
-        "symptoms": ["Symptom 1", "Symptom 2", ...]
+        "symptoms": [
+          { "clinical": "CATEGORY - RUBRIC", "friendly": "সহজ বাংলা বর্ণনা" },
+          ...
+        ]
       }
     `;
 

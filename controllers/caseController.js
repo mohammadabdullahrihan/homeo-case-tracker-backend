@@ -74,21 +74,33 @@ exports.generateCaseSummary = async (req, res) => {
         // -----------------------------------------------------
 
         // 1. Generate AI Summary and extract symptoms
-        const aiResponse = await generateSummary(labelMappedData);
-        // aiResponse contains { summary: "...", symptoms: ["...", "..."] }
-        
-        const summary = aiResponse.summary;
-        const symptoms = aiResponse.symptoms || [];
+        let summary = '';
+        let originalSymptoms = [];
+        let remedies = [];
+        let aiError = false;
 
-        // 2. Map symptoms to repertory remedies
-        const remedies = suggestRemedies(symptoms);
+        try {
+            const aiResponse = await generateSummary(labelMappedData);
+            summary = aiResponse.summary;
+            originalSymptoms = aiResponse.symptoms || [];
+            
+            // Extract 'clinical' strings for medicine matching
+            const symptomStrings = originalSymptoms.map(s => typeof s === 'object' ? s.clinical : s);
+            
+            // 2. Map symptoms to repertory remedies
+            remedies = suggestRemedies(symptomStrings);
+        } catch (error) {
+            console.error('AI Service Error:', error.message);
+            aiError = true;
+            summary = "দুঃখিত, বর্তমানে এনালাইসিস রিপোর্ট জেনারেট করা সম্ভব হচ্ছে না। অনুগ্রহ করে সিস্টেম এডমিনের সাথে যোগাযোগ করুন অথবা আপনার API Key যাচাই করুন।";
+            symptoms = [];
+            remedies = [];
+        }
 
         // 3. If caseId exists, save the summary to it
         if (caseId) {
             await Case.findByIdAndUpdate(caseId, { 
                 summary,
-                // Optionally save remedies if the schema supports it
-                // We'll assume the schema might need an update or just return it for now
                 suggestedRemedies: remedies 
             });
         }
@@ -96,13 +108,15 @@ exports.generateCaseSummary = async (req, res) => {
         res.status(200).json({
             success: true,
             summary,
-            remedies
+            remedies,
+            symptoms: originalSymptoms, // Include rubrics with friendly labels
+            aiError
         });
     } catch (error) {
-        console.error('Error generating summary or remedies:', error);
+        console.error('Error in generateCaseSummary controller:', error);
         res.status(500).json({
             success: false,
-            message: 'Failed to generate summary and remedies',
+            message: 'Failed to process case summary',
             error: error.message
         });
     }
@@ -120,7 +134,9 @@ exports.getAllCases = async (req, res) => {
             query.patientName = { $regex: search, $options: 'i' }; // Case-insensitive search
         }
 
-        const cases = await Case.find(query).sort({ createdAt: -1 });
+        const cases = await Case.find(query)
+            .select('patientName patientAge patientSex createdAt')
+            .sort({ createdAt: -1 });
         res.status(200).json({ success: true, cases });
     } catch (error) {
         res.status(500).json({ success: false, message: 'Failed to fetch cases' });
