@@ -36,10 +36,10 @@ const generateSummary = async (caseData) => {
             .join('\n');
 
         const prompt = `
-      You are an experienced homeopathic physician.
+      You are an experienced homoeopathic physician.
       Based on the provided patient data, perform two tasks:
       1. Write a clinical, doctor-readable Bangla case summary.
-      2. Identify a list of 5-10 key clinical symptoms (rubrics) in English that can be used to search a homeopathic repertory.
+      2. Identify a list of 5-10 key clinical symptoms (rubrics) in English that can be used to search a homoeopathic repertory.
 
       RULES for Summary:
       - Write in Bengali (Bangla) ONLY.

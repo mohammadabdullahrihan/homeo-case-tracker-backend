@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Homeo Case Tracker API</title>
+        <title>Homoeopathy Case Tracker API</title>
         <style>
             :root {
                 --primary: #10b981;
@@ -113,7 +113,7 @@ app.get('/', (req, res) => {
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"></path>
                 </svg>
             </div>
-            <h1>Homeo Case Tracker API</h1>
+            <h1>Homoeopathy Case Tracker API</h1>
             <div class="badge">
                 <span class="status-dot"></span>
                 System Operational
