@@ -2,6 +2,7 @@ const FormConfig = require('../models/FormConfig');
 
 // Get the active configuration
 exports.getConfig = async (req, res) => {
+    console.log('GET CONFIG CALLED');
     try {
         let config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
 
@@ -12,6 +13,7 @@ exports.getConfig = async (req, res) => {
 
         res.status(200).json({ success: true, config });
     } catch (error) {
+        console.error('Error in getConfig:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 };

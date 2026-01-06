@@ -1,5 +1,70 @@
 const Case = require('../models/Case');
 const { generateSummary } = require('../services/aiService');
+const { suggestRemedies } = require('../services/remedyService');
+const FormConfig = require('../models/FormConfig');
+
+// Helper to perform AI analysis and save to DB
+const performAnalysis = async (caseId, caseData) => {
+    try {
+        console.log('Starting analysis for caseId:', caseId);
+        // 1. Map labels for AI
+        let labelMappedData = { ...caseData };
+        try {
+            const config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
+            if (config && config.sections) {
+                const labelMap = {};
+                config.sections.forEach(sec => {
+                    if (sec.fields) {
+                        sec.fields.forEach(f => {
+                            labelMap[f.id] = f.label;
+                        });
+                    }
+                });
+                labelMappedData = {};
+                Object.entries(caseData).forEach(([key, value]) => {
+                    const label = labelMap[key] || key;
+                    labelMappedData[label] = value;
+                });
+            }
+        } catch (err) {
+            console.warn('Label mapping failed:', err.message);
+        }
+
+        // 2. Generate AI Summary
+        const aiResponse = await generateSummary(labelMappedData);
+        if (!aiResponse || !aiResponse.summary) {
+            throw new Error("AI returned an empty or invalid response");
+        }
+        
+        const summary = aiResponse.summary;
+        const symptoms = aiResponse.symptoms || [];
+
+        // 3. Map to remedies with Expert Clinical Reasoning
+        const patientProfile = {
+            type: caseData.caseType || 'chronic', 
+            miasm: caseData.miasm || null,
+            constitution: caseData.constitution || null
+        };
+
+        console.log('Starting remedy suggestion for', symptoms.length, 'symptoms');
+        const remedies = suggestRemedies(symptoms, patientProfile, 10);
+        console.log('Remedy suggestion completed, found', remedies.length, 'remedies');
+
+        // 4. Update Case
+        console.log('Updating case in DB...');
+        const updatedCase = await Case.findByIdAndUpdate(caseId, {
+            summary,
+            suggestedRemedies: remedies,
+            symptoms: symptoms 
+        }, { new: true });
+
+        console.log('Analysis completed successfully for caseId:', caseId);
+        return updatedCase;
+    } catch (error) {
+        console.error('Auto-analysis failed with error:', error);
+        throw error; // Bubble up the error
+    }
+};
 
 // Create a new case
 exports.createCase = async (req, res) => {
@@ -7,7 +72,6 @@ exports.createCase = async (req, res) => {
         const { caseData } = req.body;
         const userId = req.user.id;
 
-        // Extract basic info for metadata if available
         const patientName = caseData.name || 'Unknown';
         const patientAge = caseData.age || '';
         const patientSex = caseData.sex || '';
@@ -22,123 +86,67 @@ exports.createCase = async (req, res) => {
 
         const savedCase = await newCase.save();
 
+        // Trigger analysis
+        await performAnalysis(savedCase._id, caseData);
+
         res.status(201).json({
             success: true,
             caseId: savedCase._id,
-            message: 'Case saved successfully'
+            message: 'Case saved and analyzed successfully'
         });
     } catch (error) {
         console.error('Error creating case:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to save case'
-        });
+        res.status(500).json({ success: false, message: 'Failed to save case' });
     }
 };
 
-const { suggestRemedies } = require('../services/remedyService');
-const FormConfig = require('../models/FormConfig');
-
-// Generate Summary for a specific case
+// Generate Summary for a specific case (Manual trigger)
 exports.generateCaseSummary = async (req, res) => {
     try {
         const { caseId, caseData } = req.body;
-
+        console.log('Manual summary request for caseId:', caseId);
         if (!caseData) {
+            console.error('Missing caseData in request body');
             return res.status(400).json({ success: false, message: 'Case data is required' });
         }
 
-        // --- NEW: Map technical IDs to Labs for AI context ---
-        // Fetch labels from configuration to help AI understand "f_123" fields
-        let labelMappedData = { ...caseData };
-        try {
-            const config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
-            if (config) {
-                const labelMap = {};
-                config.sections.forEach(sec => {
-                    sec.fields.forEach(f => {
-                        labelMap[f.id] = f.label;
-                    });
-                });
-
-                // Create a copy with human-readable keys
-                labelMappedData = {};
-                Object.entries(caseData).forEach(([key, value]) => {
-                    const label = labelMap[key] || key;
-                    labelMappedData[label] = value;
-                });
-            }
-        } catch (configErr) {
-            console.warn('Could not map labels for AI, using raw keys:', configErr.message);
-        }
-        // -----------------------------------------------------
-
-        // 1. Generate AI Summary and extract symptoms
-        let summary = '';
-        let originalSymptoms = [];
-        let remedies = [];
-        let aiError = false;
-
-        try {
-            const aiResponse = await generateSummary(labelMappedData);
-            summary = aiResponse.summary;
-            originalSymptoms = aiResponse.symptoms || [];
-            
-            // Extract 'clinical' strings for medicine matching
-            const symptomStrings = originalSymptoms.map(s => typeof s === 'object' ? s.clinical : s);
-            
-            // 2. Map symptoms to repertory remedies
-            remedies = suggestRemedies(symptomStrings);
-        } catch (error) {
-            console.error('AI Service Error:', error.message);
-            aiError = true;
-            summary = "দুঃখিত, বর্তমানে এনালাইসিস রিপোর্ট জেনারেট করা সম্ভব হচ্ছে না। অনুগ্রহ করে সিস্টেম এডমিনের সাথে যোগাযোগ করুন অথবা আপনার API Key যাচাই করুন।";
-            symptoms = [];
-            remedies = [];
-        }
-
-        // 3. If caseId exists, save the summary to it
-        if (caseId) {
-            await Case.findByIdAndUpdate(caseId, { 
-                summary,
-                suggestedRemedies: remedies 
-            });
+        const updatedCase = await performAnalysis(caseId, caseData);
+        
+        if (!updatedCase) {
+            console.error('performAnalysis returned null for caseId:', caseId);
+            return res.status(500).json({ success: false, message: 'Analysis failed. Check backend logs for AI or logic errors.' });
         }
 
         res.status(200).json({
             success: true,
-            summary,
-            remedies,
-            symptoms: originalSymptoms, // Include rubrics with friendly labels
-            aiError
+            summary: updatedCase.summary,
+            remedies: updatedCase.suggestedRemedies,
+            symptoms: updatedCase.symptoms
         });
     } catch (error) {
-        console.error('Error in generateCaseSummary controller:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Failed to process case summary',
-            error: error.message
-        });
+        const fs = require('fs');
+        const logMsg = `\n[${new Date().toISOString()}] Controller Error: ${error.message}\nStack: ${error.stack}\n`;
+        fs.appendFileSync('error_log.txt', logMsg);
+        console.error('Error in manual summary trigger:', error);
+        res.status(500).json({ success: false, message: 'Process failed: ' + error.message });
     }
 };
 
-// Get all cases (filtered by user and optional search)
+// Get all cases
 exports.getAllCases = async (req, res) => {
     try {
         const userId = req.user.id;
         const { search } = req.query;
-
         let query = { user: userId };
-
         if (search) {
-            query.patientName = { $regex: search, $options: 'i' }; // Case-insensitive search
+            query.patientName = { $regex: search, $options: 'i' };
         }
-
         const cases = await Case.find(query)
             .select('patientName patientAge patientSex createdAt')
             .sort({ createdAt: -1 });
         res.status(200).json({ success: true, cases });
     } catch (error) {
+        console.error('Error fetching cases:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch cases' });
     }
 };
@@ -161,33 +169,26 @@ exports.updateCase = async (req, res) => {
     try {
         const userId = req.user.id;
         const { caseData } = req.body;
-        
-        // Metadata updates
         const patientName = caseData.name || 'Unknown';
         const patientAge = caseData.age || '';
         const patientSex = caseData.sex || '';
 
-        const caseItem = await Case.findOneAndUpdate(
+        let caseItem = await Case.findOneAndUpdate(
             { _id: req.params.id, user: userId },
-            { 
-                caseData,
-                patientName,
-                patientAge,
-                patientSex
-                // We do NOT update summary automatically here, as it might overwrite AI summary.
-                // Summary regeneration is a separate action.
-            },
+            { caseData, patientName, patientAge, patientSex },
             { new: true }
         );
 
-        if (!caseItem) {
-            return res.status(404).json({ success: false, message: 'Case not found' });
-        }
+        if (!caseItem) return res.status(404).json({ success: false, message: 'Case not found' });
+
+        // Auto-update analysis
+        const updatedWithAnalysis = await performAnalysis(caseItem._id, caseData);
+        if (updatedWithAnalysis) caseItem = updatedWithAnalysis;
 
         res.status(200).json({
             success: true,
             case: caseItem,
-            message: 'Case updated successfully'
+            message: 'Case updated and analysis refreshed'
         });
     } catch (error) {
         console.error('Error updating case:', error);
@@ -195,26 +196,17 @@ exports.updateCase = async (req, res) => {
     }
 };
 
-// Get Dashboard Stats
+// Dashboard Stats
 exports.getDashboardStats = async (req, res) => {
     try {
         const userId = req.user.id;
-
-        // 1. Total Patients
         const totalPatients = await Case.countDocuments({ user: userId });
-
-        // 2. Today's Cases
         const startOfToday = new Date();
         startOfToday.setHours(0, 0, 0, 0);
-        const endOfToday = new Date();
-        endOfToday.setHours(23, 59, 59, 999);
-
         const todayCases = await Case.countDocuments({
             user: userId,
-            createdAt: { $gte: startOfToday, $lte: endOfToday }
+            createdAt: { $gte: startOfToday }
         });
-
-        // 3. Pending Review (Cases without summary)
         const pendingReview = await Case.countDocuments({
             user: userId,
             summary: { $in: ['', null] }
@@ -222,11 +214,7 @@ exports.getDashboardStats = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            stats: {
-                totalPatients,
-                todayCases,
-                pendingReview
-            }
+            stats: { totalPatients, todayCases, pendingReview }
         });
     } catch (error) {
         console.error('Error fetching stats:', error);
@@ -239,14 +227,9 @@ exports.deleteCase = async (req, res) => {
     try {
         const userId = req.user.id;
         const caseItem = await Case.findOneAndDelete({ _id: req.params.id, user: userId });
-
-        if (!caseItem) {
-            return res.status(404).json({ success: false, message: 'Case not found' });
-        }
-
+        if (!caseItem) return res.status(404).json({ success: false, message: 'Case not found' });
         res.status(200).json({ success: true, message: 'Case deleted successfully' });
     } catch (error) {
-        console.error('Error deleting case:', error);
         res.status(500).json({ success: false, message: 'Failed to delete case' });
     }
 };

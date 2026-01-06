@@ -1,0 +1,85 @@
+
+[2026-01-06T14:15:04.493Z] AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at handleResponseNotOk (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:403:9)
+    at async generateContent (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:867:22)
+    at async generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:76:24)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T14:15:04.531Z] Controller Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:109:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T14:40:54.027Z] AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at handleResponseNotOk (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:403:9)
+    at async generateContent (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:867:22)
+    at async generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:76:24)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T14:40:54.036Z] Controller Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:109:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:07:04.119Z] AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at handleResponseNotOk (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:403:9)
+    at async generateContent (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:867:22)
+    at async generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:76:24)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:07:04.123Z] Controller Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:109:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:07:58.866Z] AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at handleResponseNotOk (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:403:9)
+    at async generateContent (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:867:22)
+    at async generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:76:24)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:07:58.872Z] Controller Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:109:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:11:30.908Z] AI Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at handleResponseNotOk (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:434:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async makeRequest (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:403:9)
+    at async generateContent (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/node_modules/@google/generative-ai/dist/index.js:867:22)
+    at async generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:76:24)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-06T15:11:30.921Z] Controller Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] The model is overloaded. Please try again later.
+    at generateSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/services/aiService.js:109:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
+    at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)

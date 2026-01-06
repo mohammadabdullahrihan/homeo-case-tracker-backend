@@ -1,41 +1,41 @@
 const mongoose = require('mongoose');
 
-const caseSchema = new mongoose.Schema({
+const CaseSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
+    patientName: {
+        type: String,
+        required: true
     },
-
-    // Stores the raw form data
+    patientAge: {
+        type: String
+    },
+    patientSex: {
+        type: String
+    },
     caseData: {
-        type: mongoose.Schema.Types.Mixed,
-        required: true,
+        type: Object,
+        required: true
     },
-
-    // Stores the generated summary
     summary: {
         type: String,
-        default: '',
+        default: ''
     },
-
-    // Metadata for easier querying
-    patientName: String,
-    patientAge: String,
-    patientSex: String,
-
-    // Stores suggested remedies from repertory
-    suggestedRemedies: [
-        {
-            abbreviation: String,
-            fullName: String,
-            score: Number
-        }
-    ]
+    symptoms: {
+        type: Array, // Array of symptom objects { clinical, friendly, type, importance }
+        default: []
+    },
+    suggestedRemedies: {
+        type: Array, // Array of remedy objects { fullName, shortName, score, percentMatch, clinicalJustification }
+        default: []
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
 });
 
-module.exports = mongoose.model('Case', caseSchema);
+module.exports = mongoose.model('Case', CaseSchema);
