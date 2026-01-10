@@ -1,40 +1,20 @@
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
+const { Bytez } = require("bytez.js");
 const dotenv = require('dotenv');
 
 dotenv.config({ override: true });
 
 const generateSummary = async (caseData) => {
-    try {
-        const apiKey = process.env.GEMINI_API_KEY;
-        if (!apiKey) {
-            throw new Error("GEMINI_API_KEY is missing from environment variables.");
-        }
+    const formattedData = Object.entries(caseData)
+        .map(([key, value]) => {
+            if (typeof value === 'object' && value !== null) {
+                return `${key}: ${JSON.stringify(value)}`;
+            }
+            return `${key}: ${value}`;
+        })
+        .join('\n');
 
-        const genAI = new GoogleGenerativeAI(apiKey);
-
-        const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-            },
-            safetySettings: [
-                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-            ]
-        });
-
-        const formattedData = Object.entries(caseData)
-            .map(([key, value]) => {
-                if (typeof value === 'object' && value !== null) {
-                    return `${key}: ${JSON.stringify(value)}`;
-                }
-                return `${key}: ${value}`;
-            })
-            .join('\n');
-
-        const prompt = `
+    const prompt = `
       You are an experienced homoeopathic physician.
       Based on the provided patient data, perform the following tasks:
       1. Write a clinical, doctor-readable Bangla case summary.
@@ -90,47 +70,91 @@ const generateSummary = async (caseData) => {
       }
     `;
 
+    // --- Provider Selection ---
+    const useBytez = process.env.ACTIVE_AI_PROVIDER === 'bytez' || (!process.env.ACTIVE_AI_PROVIDER && process.env.BYTEZ_API_KEY);
+
+    if (useBytez) {
+        const modelName = process.env.BYTEZ_MODEL_NAME || "google/gemini-3-flash-preview";
+        console.log(`Using PRIMARY provider: Bytez (${modelName})`);
+        try {
+            const bytezSdk = new Bytez(process.env.BYTEZ_API_KEY);
+            const bytezModel = bytezSdk.model(modelName);
+            const results = await bytezModel.run([{ role: "user", content: prompt }]);
+
+            if (results && results.output) {
+                return parseAIResponse(results.output);
+            }
+            console.warn('Bytez returned no output, falling back to Google SDK...');
+        } catch (error) {
+            console.error('Bytez Provider Error:', error.message);
+            console.log('Falling back to SECONDARY provider: Google SDK');
+        }
+    }
+
+    // --- Fallback / Secondary Provider: Google Generative AI ---
+    try {
+        console.log('Using provider: Google SDK (Gemini 2.5 Flash)');
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            generationConfig: { responseMimeType: "application/json" },
+            safetySettings: [
+                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+            ]
+        });
+
         const result = await model.generateContent(prompt);
         const response = await result.response;
         
-        // Handle potential safety block
         if (!response.candidates || response.candidates.length === 0) {
-            console.error('Gemini Safety Block or No Candidates:', JSON.stringify(response));
-            throw new Error('AI blocked the response due to safety filters or returned no results.');
+            throw new Error('AI blocked the response or returned no results.');
         }
 
-        const text = response.text();
-        console.log('Gemini raw response text:', text);
-        
-        try {
-            // Attempt to clean markdown
-            let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            
-            // Extract JSON object if there's surrounding text
-            const firstBrace = cleanText.indexOf('{');
-            const lastBrace = cleanText.lastIndexOf('}');
-            
-            if (firstBrace !== -1 && lastBrace !== -1) {
-                cleanText = cleanText.substring(firstBrace, lastBrace + 1);
-            }
-
-            return JSON.parse(cleanText);
-        } catch (e) {
-            console.error('JSON Parse Error from Gemini. Raw text:', text);
-            // Fallback: try to construct a partial object if possible, or return empty
-            return {
-                summary: "AI Response Error: Could not parse analysis. Please try again.",
-                symptoms: []
-            };
-        }
+        return parseAIResponse(response.text());
 
     } catch (error) {
-        const fs = require('fs');
-        const logMsg = `\n[${new Date().toISOString()}] AI Error: ${error.message}\nStack: ${error.stack}\n`;
-        fs.appendFileSync('error_log.txt', logMsg);
-        console.error('Error generating AI summary with Gemini:', error);
+        logError(error);
         throw new Error('Failed to generate summary: ' + error.message);
     }
+};
+
+/**
+ * Helper to parse AI JSON response safely
+ */
+const parseAIResponse = (text) => {
+    try {
+        console.log('Parsing AI response...');
+        let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const firstBrace = cleanText.indexOf('{');
+        const lastBrace = cleanText.lastIndexOf('}');
+        
+        if (firstBrace !== -1 && lastBrace !== -1) {
+            cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+        }
+        return JSON.parse(cleanText);
+    } catch (e) {
+        console.error('JSON Parse Error:', e.message);
+        return {
+            summary: "AI Response Error: Could not parse analysis. Please try again.",
+            symptoms: []
+        };
+    }
+};
+
+/**
+ * Error Logger
+ */
+const logError = (error) => {
+    const fs = require('fs');
+    const logMsg = `\n[${new Date().toISOString()}] AI Error: ${error.message}\nStack: ${error.stack}\n`;
+    fs.appendFileSync('error_log.txt', logMsg);
+    console.error('AI Service Error:', error);
 };
 
 module.exports = { generateSummary };
