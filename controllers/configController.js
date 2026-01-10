@@ -72,7 +72,29 @@ exports.seedConfig = async (req, res) => {
                 id: 'chief-complaints',
                 title: 'প্রধান অভিযোগ (Chief Complaints)',
                 fields: [
-                    { id: 'complaint', label: 'সমস্যা', type: 'textarea', required: true }
+                    { id: 'complaint', label: 'প্রধান সমস্যা ও তার বিবরণ', type: 'textarea', required: true }
+                ]
+            },
+            {
+                id: 'mental-symptoms',
+                title: 'মানসিক লক্ষণ (Mental Symptoms)',
+                fields: [
+                    { id: 'mind', label: 'মানসিক অবস্থা, রাগ, ভয় বা দুশ্চিন্তা', type: 'textarea' }
+                ]
+            },
+            {
+                id: 'physical-generals',
+                title: 'শারীরিক সাধারণ লক্ষণ (Physical Generals)',
+                fields: [
+                    { id: 'appetite', label: 'ক্ষুধা, তৃষ্ণা ও খাবারের প্রতি ইচ্ছা/অনিচ্ছা', type: 'textarea' },
+                    { id: 'thermal', label: 'গরমকাতরতা বা শীতকাতরতা (Thermal Relations)', type: 'text' }
+                ]
+            },
+            {
+                id: 'additional-info',
+                title: 'অন্যান্য তথ্য (Additional Info)',
+                fields: [
+                    { id: 'others', label: 'অন্য কোনো গুরুত্বপূর্ণ তথ্য বা পর্যবেক্ষণ', type: 'textarea' }
                 ]
             }
         ];

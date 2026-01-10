@@ -38,6 +38,13 @@ const performAnalysis = async (caseId, caseData) => {
         
         const summary = aiResponse.summary;
         const symptoms = aiResponse.symptoms || [];
+        const miasm = aiResponse.miasm || '';
+        const potency = aiResponse.potency || '';
+        const advice = aiResponse.advice || '';
+        const biochemic = aiResponse.biochemic || '';
+        const crossDiscipline = aiResponse.crossDiscipline || '';
+        const diagnostics = aiResponse.diagnostics || '';
+        const prescription = aiResponse.prescription || '';
 
         // 3. Map to remedies with Expert Clinical Reasoning
         const patientProfile = {
@@ -55,7 +62,14 @@ const performAnalysis = async (caseId, caseData) => {
         const updatedCase = await Case.findByIdAndUpdate(caseId, {
             summary,
             suggestedRemedies: remedies,
-            symptoms: symptoms 
+            symptoms: symptoms,
+            miasmaticAnalysis: miasm,
+            potencyAdvice: potency,
+            clinicalAdvice: advice,
+            biochemic: biochemic,
+            crossDiscipline: crossDiscipline,
+            diagnostics: diagnostics,
+            generatedPrescription: prescription
         }, { new: true });
 
         console.log('Analysis completed successfully for caseId:', caseId);
@@ -136,13 +150,16 @@ exports.generateCaseSummary = async (req, res) => {
 exports.getAllCases = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { search } = req.query;
+        const { search, filter } = req.query;
         let query = { user: userId };
         if (search) {
             query.patientName = { $regex: search, $options: 'i' };
         }
+        if (filter === 'pending') {
+            query.summary = { $in: ['', null] };
+        }
         const cases = await Case.find(query)
-            .select('patientName patientAge patientSex createdAt')
+            .select('patientName patientAge patientSex createdAt summary')
             .sort({ createdAt: -1 });
         res.status(200).json({ success: true, cases });
     } catch (error) {
@@ -219,6 +236,41 @@ exports.getDashboardStats = async (req, res) => {
     } catch (error) {
         console.error('Error fetching stats:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch stats' });
+    }
+};
+
+// Update symptoms (rubrics) manually and recalculate remedies
+exports.updateSymptoms = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { symptoms } = req.body;
+        const caseId = req.params.id;
+
+        const caseItem = await Case.findOne({ _id: caseId, user: userId });
+        if (!caseItem) return res.status(404).json({ success: false, message: 'Case not found' });
+
+        // Recalculate remedies based on new symptoms
+        const patientProfile = {
+            type: caseItem.caseData.caseType || 'chronic', 
+            miasm: caseItem.caseData.miasm || null,
+            constitution: caseItem.caseData.constitution || null
+        };
+
+        const remedies = suggestRemedies(symptoms, patientProfile, 10);
+
+        const updatedCase = await Case.findByIdAndUpdate(caseId, {
+            symptoms,
+            suggestedRemedies: remedies
+        }, { new: true });
+
+        res.status(200).json({
+            success: true,
+            case: updatedCase,
+            message: 'Symptoms updated and remedies recalculated'
+        });
+    } catch (error) {
+        console.error('Error updating symptoms:', error);
+        res.status(500).json({ success: false, message: 'Failed to update symptoms' });
     }
 };
 

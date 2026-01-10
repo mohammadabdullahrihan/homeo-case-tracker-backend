@@ -10,6 +10,7 @@ router.get('/', authMiddleware, caseController.getAllCases);
 router.get('/stats', authMiddleware, caseController.getDashboardStats);
 router.get('/:id', authMiddleware, caseController.getCaseById);
 router.put('/:id', authMiddleware, caseController.updateCase);
+router.put('/:id/symptoms', authMiddleware, caseController.updateSymptoms);
 router.delete('/:id', authMiddleware, caseController.deleteCase);
 
 module.exports = router;

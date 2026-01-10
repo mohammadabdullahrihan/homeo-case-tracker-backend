@@ -36,40 +36,57 @@ const generateSummary = async (caseData) => {
 
         const prompt = `
       You are an experienced homoeopathic physician.
-      Based on the provided patient data, perform two tasks:
+      Based on the provided patient data, perform the following tasks:
       1. Write a clinical, doctor-readable Bangla case summary.
-      2. Identify a list of 5-10 key clinical symptoms (rubrics) in English that can be used to search a homoeopathic repertory.
+      2. Identify a list of 8-12 key clinical symptoms (rubrics) in English that can be used to search a homoeopathic repertory.
+      3. Perform a Miasmatic Analysis (identify Sora, Sycosis, or Syphilis) in Bangla.
+      4. Suggest Potency and Repetition (e.g. 30, 200, 1M / weekly, daily) based on the case severity in Bangla.
+      5. Provide Diet and Clinical Advice (পথ্য ও অপথ্য) for the patient in Bangla.
+      6. Suggest the most suitable Biochemic or Biocombination remedies in Bangla. Do NOT select inimical remedies.
+      7. Provide brief Cross-Disciplinary Insights (Allopathy & Unani) in Bangla. Mention standard drug names, why they are used, and typical adult dosage (as reference only).
+      8. Suggest Diagnostic Tests & Red Flags (warnings) in Bangla.
+      9. Generate a professional English Prescription snippet. It should include:
+         - Patient demographics (make placeholders if missing)
+         - List of clinical symptoms (Summary)
+         - Top 3 Homeopathic Remedies selected from task #2 (Name only, no explanation)
+         - Future Alternative Remedies
+         - Format it clearly for copying.
 
       RULES for Summary:
       - Write in Bengali (Bangla) ONLY.
-      - Keep it clinical, professional, and active voice.
-      - Do NOT diagnose or suggest medicine.
+      - **Create a DETAILED and COMPREHENSIVE clinical case history.** roughly 150-250 words.
+      - It must be descriptive enough for a doctor to understand the full case at a glance.
+      - Structure it logically: Start with Chief Complaints (প্রধান সমস্যা), then details of the problems (বর্তমান কষ্টের বিবরণ), Physical Generals (শারীরিক সাধারণ লক্ষণ like appetite, thirst, thermal reaction), and Mental State (মানসিক অবস্থা).
+      - Use professional medical terminology where appropriate but keep the flow natural.
+      - Do NOT diagnose or suggest specific medicine names in the summary.
       - Focus on Totality of Symptoms.
-      - Plain text format without markdown.
+      - Plain text format ONLY. **Do NOT use asterisks (*) or markdown bolding.**
+      - Write in paragraphs, do not use bullet points in the summary.
 
       RULES for Symptoms (Rubrics):
       - For each symptom, provide THREE fields:
-        1. "clinical": The technical English rubric (Category - Rubric). Try to use standard Kent Repertory terms.
-           - Examples: "HEAD - PAIN - throbbing", "MIND - ANXIETY", "GENERALITIES - FOOD - desires".
+        1. "clinical": The technical English rubric (Category - Rubric).
         2. "friendly": A very simple Bangla translation.
         3. "type": Categorize as 'mental', 'keynote', or 'physical'. 
-           - 'mental' for MIND/Emotion symptoms.
-           - 'keynote' for very peculiar, rare or striking traits.
-           - 'physical' for common body/organ symptoms.
-      - Use these Standard Categories: MIND, VERTIGO, HEAD, EYE, VISION, EAR, HEARING, NOSE, FACE, MOUTH, TEETH, THROAT, STOMACH, ABDOMEN, RECTUM, STOOL, BLADDER, URINE, GENITALIA, LARYNX, RESPIRATION, COUGH, CHEST, BACK, EXTREMITIES, SLEEP, CHILL, FEVER, PERSPIRATION, SKIN, GENERALITIES.
-      - Aim for 8-12 key symptoms.
+      - Use standard Kent Repertory categories.
 
       PATIENT DATA:
       ${formattedData}
-      
+
       OUTPUT FORMAT:
       Return ONLY a JSON object:
       {
         "summary": "The Bangla summary text here",
         "symptoms": [
-          { "clinical": "CATEGORY - RUBRIC", "friendly": "সহজ বাংলা বর্ণনা", "type": "mental|keynote|physical" },
-          ...
-        ]
+          { "clinical": "CATEGORY - RUBRIC", "friendly": "সহজ বাংলা বর্ণনা", "type": "mental|keynote|physical" }
+        ],
+        "miasm": "Detailed Miasmatic analysis in Bangla",
+        "potency": "Potency and repetition advice in Bangla",
+        "advice": "Diet and life style advice in Bangla",
+        "biochemic": "Biochemic suggestions in Bangla",
+        "crossDiscipline": "Allopathy and Unani insights in Bangla",
+        "diagnostics": "Diagnostic tests and red flag warnings in Bangla",
+        "prescription": "The English prescription text"
       }
     `;
 
@@ -86,19 +103,25 @@ const generateSummary = async (caseData) => {
         console.log('Gemini raw response text:', text);
         
         try {
-            return JSON.parse(text);
+            // Attempt to clean markdown
+            let cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+            
+            // Extract JSON object if there's surrounding text
+            const firstBrace = cleanText.indexOf('{');
+            const lastBrace = cleanText.lastIndexOf('}');
+            
+            if (firstBrace !== -1 && lastBrace !== -1) {
+                cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+            }
+
+            return JSON.parse(cleanText);
         } catch (e) {
             console.error('JSON Parse Error from Gemini. Raw text:', text);
-            // Attempt to clean markdown if present
-            const cleanedText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-            try {
-                return JSON.parse(cleanedText);
-            } catch (e2) {
-                return {
-                    summary: text.substring(0, 500), 
-                    symptoms: []
-                };
-            }
+            // Fallback: try to construct a partial object if possible, or return empty
+            return {
+                summary: "AI Response Error: Could not parse analysis. Please try again.",
+                symptoms: []
+            };
         }
 
     } catch (error) {
