@@ -74,11 +74,10 @@ const generateSummary = async (caseData) => {
     const useBytez = process.env.ACTIVE_AI_PROVIDER === 'bytez' || (!process.env.ACTIVE_AI_PROVIDER && process.env.BYTEZ_API_KEY);
 
     if (useBytez) {
-        const modelName = process.env.BYTEZ_MODEL_NAME || "google/gemini-3-flash-preview";
-        console.log(`Using PRIMARY provider: Bytez (${modelName})`);
+        console.log('Using PRIMARY provider: Bytez (Gemini 3 Flash Preview)');
         try {
             const bytezSdk = new Bytez(process.env.BYTEZ_API_KEY);
-            const bytezModel = bytezSdk.model(modelName);
+            const bytezModel = bytezSdk.model("google/gemini-3-flash-preview");
             const results = await bytezModel.run([{ role: "user", content: prompt }]);
 
             if (results && results.output) {
