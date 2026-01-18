@@ -1,10 +1,17 @@
 const { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } = require("@google/generative-ai");
 const { Bytez } = require("bytez.js");
 const dotenv = require('dotenv');
+const SystemConfig = require('../models/SystemConfig');
 
 dotenv.config({ override: true });
 
 const generateSummary = async (caseData) => {
+    // Fetch system configuration for dynamic prompt
+    let systemConfig = await SystemConfig.findOne();
+    if (!systemConfig) {
+        systemConfig = await SystemConfig.create({});
+    }
+
     const formattedData = Object.entries(caseData)
         .map(([key, value]) => {
             if (typeof value === 'object' && value !== null) {
@@ -14,41 +21,60 @@ const generateSummary = async (caseData) => {
         })
         .join('\n');
 
+    // Use dynamic prompt from system config or fallback to default
+    const basePrompt = systemConfig.aiPrompt || `
+      You are an elite, world-class Homoeopathic Consultant with decades of experience in classical homoeopathy.
+      You are tasked with providing a MASTER-LEVEL analysis of the following patient case record.
+
+      REQUIRED TASKS:
+      1. **EXHAUSTIVE CLINICAL BANGLA SUMMARY:**
+         - Write a deep, descriptive, and clinical case history in Bengali.
+         - Minimum 400-600 words. DO NOT summarize briefly; explain the progression of the disease.
+         - Structure: 
+            a. Chief Complaints (প্রধান কষ্টসমূহ) in detail.
+            b. History of Present Illness (বর্তমান রোগের বিস্তারিত বিবরণ) with modalities (aggravation/amelioration).
+            c. Physical Generals (শারীরিক সাধারণ লক্ষণ) including Appetite, Thirst, Tongue, Bowel/Bladder habits, Sleep, Dreams, and Thermal Reaction (Chilly/Hot/Ambi-thermal).
+            d. Mental State (মানসিক অবস্থা) describing temperament, fears, anxieties, and emotional triggers.
+            e. Totality of Symptoms (লক্ষণসমষ্টির নির্যাস).
+         - This must feel like a senior consultant's case report.
+
+      2. **REPERTORIAL SEARCH RUBRICS (8-15 symptoms):**
+         - Identify key rubrics in English for repertorization.
+         - MUST include: Category - Rubric - Sub-rubric (e.g., MIND - ANGER, irascibility - trifles, at).
+         - Provide clinical, friendly (Bangla), and type (mental/keynote/physical).
+
+      3. **DEEP MIASMATIC ANALYSIS:**
+         - Identify the dominant miasm (Sora, Sycosis, Syphilis, or Tubercular) and why.
+         - Explain the miasmatic shift in this specific patient in Bangla.
+
+      4. **POTENCY & POSOLOGY STRATEGY:**
+         - Suggest specific potency (e.g., 30, 200, 1M, 10M, LM scales) based on the patient's sensitivity and vitality.
+         - Provide a detailed repetition schedule (e.g., split doses, daily, or on wait-and-watch basis) in Bangla.
+
+      5. **COMPREHENSIVE DIET & REGIMEN (পথ্য ও অপথ্য):**
+         - Extremely detailed clinical advice based on the patient's condition.
+
+      6. **BIOCHEMIC & AUXILIARY SUPPORT:**
+         - Suggest complementary Biochemic remedies and why they help this case in Bangla.
+
+      7. **MULTIDISCIPLINARY INSIGHTS:**
+         - Provide Allopathic & Unani correlations. Mention standard drug names, why they are used, side effects, and adult dosage (for doctor's reference only) in Bangla.
+
+      8. **DIAGNOSTIC WORKUP & PROGNOSIS:**
+         - Suggest necessary laboratory tests (Blood, Imaging, etc.) and mention 'RED FLAGS' (যখন আপনাকে সাবধান হতে হবে) in Bangla.
+
+      9. **ELITE ENGLISH PRESCRIPTION:**
+         - A formal, professional English snippet including Summary, Remedies (Top 3), and Alternative Remedies.
+
+      STRICT RULES:
+      - Use Bengali (Bangla) for all points EXCEPT Rubrics and Prescription.
+      - Plain text ONLY. Do NOT use markdown bolding (**) or headers (###).
+      - Do NOT use bullet points in the Summary section; use paragraphs.
+      - Ensure the tone is highly professional and medical.
+    `;
+
     const prompt = `
-      You are an experienced homoeopathic physician.
-      Based on the provided patient data, perform the following tasks:
-      1. Write a clinical, doctor-readable Bangla case summary.
-      2. Identify a list of 8-12 key clinical symptoms (rubrics) in English that can be used to search a homoeopathic repertory.
-      3. Perform a Miasmatic Analysis (identify Sora, Sycosis, or Syphilis) in Bangla.
-      4. Suggest Potency and Repetition (e.g. 30, 200, 1M / weekly, daily) based on the case severity in Bangla.
-      5. Provide Diet and Clinical Advice (পথ্য ও অপথ্য) for the patient in Bangla.
-      6. Suggest the most suitable Biochemic or Biocombination remedies in Bangla. Do NOT select inimical remedies.
-      7. Provide brief Cross-Disciplinary Insights (Allopathy & Unani) in Bangla. Mention standard drug names, why they are used, and typical adult dosage (as reference only).
-      8. Suggest Diagnostic Tests & Red Flags (warnings) in Bangla.
-      9. Generate a professional English Prescription snippet. It should include:
-         - Patient demographics (make placeholders if missing)
-         - List of clinical symptoms (Summary)
-         - Top 3 Homeopathic Remedies selected from task #2 (Name only, no explanation)
-         - Future Alternative Remedies
-         - Format it clearly for copying.
-
-      RULES for Summary:
-      - Write in Bengali (Bangla) ONLY.
-      - **Create a DETAILED and COMPREHENSIVE clinical case history.** roughly 150-250 words.
-      - It must be descriptive enough for a doctor to understand the full case at a glance.
-      - Structure it logically: Start with Chief Complaints (প্রধান সমস্যা), then details of the problems (বর্তমান কষ্টের বিবরণ), Physical Generals (শারীরিক সাধারণ লক্ষণ like appetite, thirst, thermal reaction), and Mental State (মানসিক অবস্থা).
-      - Use professional medical terminology where appropriate but keep the flow natural.
-      - Do NOT diagnose or suggest specific medicine names in the summary.
-      - Focus on Totality of Symptoms.
-      - Plain text format ONLY. **Do NOT use asterisks (*) or markdown bolding.**
-      - Write in paragraphs, do not use bullet points in the summary.
-
-      RULES for Symptoms (Rubrics):
-      - For each symptom, provide THREE fields:
-        1. "clinical": The technical English rubric (Category - Rubric).
-        2. "friendly": A very simple Bangla translation.
-        3. "type": Categorize as 'mental', 'keynote', or 'physical'. 
-      - Use standard Kent Repertory categories.
+      ${basePrompt}
 
       PATIENT DATA:
       ${formattedData}
@@ -70,14 +96,15 @@ const generateSummary = async (caseData) => {
       }
     `;
 
-    // --- Provider Selection ---
-    const useBytez = process.env.ACTIVE_AI_PROVIDER === 'bytez' || (!process.env.ACTIVE_AI_PROVIDER && process.env.BYTEZ_API_KEY);
+    // --- Provider Selection from System Config ---
+    const aiProvider = systemConfig.aiProvider || process.env.ACTIVE_AI_PROVIDER || 'bytez';
+    const useBytez = aiProvider === 'bytez';
 
     if (useBytez) {
-        console.log('Using PRIMARY provider: Bytez (Gemini 3 Flash Preview)');
+        console.log(`Using PRIMARY provider: Bytez (${systemConfig.aiModel || 'google/gemini-1.5-flash'})`);
         try {
             const bytezSdk = new Bytez(process.env.BYTEZ_API_KEY);
-            const bytezModel = bytezSdk.model("google/gemini-3-flash-preview");
+            const bytezModel = bytezSdk.model(systemConfig.aiModel || "google/gemini-1.5-flash");
             const results = await bytezModel.run([{ role: "user", content: prompt }]);
 
             if (results && results.output) {
@@ -92,13 +119,14 @@ const generateSummary = async (caseData) => {
 
     // --- Fallback / Secondary Provider: Google Generative AI ---
     try {
-        console.log('Using provider: Google SDK (Gemini 2.5 Flash)');
+        const directModelName = (systemConfig.aiModel || "gemini-1.5-flash").replace('google/', '');
+        console.log(`Using provider: Google SDK (${directModelName})`);
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("GEMINI_API_KEY is missing.");
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-2.5-flash",
+            model: directModelName,
             generationConfig: { responseMimeType: "application/json" },
             safetySettings: [
                 { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -136,7 +164,14 @@ const parseAIResponse = (text) => {
         if (firstBrace !== -1 && lastBrace !== -1) {
             cleanText = cleanText.substring(firstBrace, lastBrace + 1);
         }
-        return JSON.parse(cleanText);
+        const parsed = JSON.parse(cleanText);
+
+        // Safety: Ensure prescription is a string to avoid Mongoose CastErrors
+        if (parsed.prescription && typeof parsed.prescription !== 'string') {
+            parsed.prescription = JSON.stringify(parsed.prescription, null, 2);
+        }
+
+        return parsed;
     } catch (e) {
         console.error('JSON Parse Error:', e.message);
         return {

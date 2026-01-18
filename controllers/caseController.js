@@ -2,6 +2,7 @@ const Case = require('../models/Case');
 const { generateSummary } = require('../services/aiService');
 const { suggestRemedies } = require('../services/remedyService');
 const FormConfig = require('../models/FormConfig');
+const SystemConfig = require('../models/SystemConfig');
 
 // Helper to perform AI analysis and save to DB
 const performAnalysis = async (caseId, caseData, userId) => {
@@ -242,12 +243,38 @@ exports.getDashboardStats = async (req, res) => {
 
         // Fetch user subscription details
         const User = require('../models/User');
-        const currentUser = await User.findById(userId).select('subscription');
+        const currentUser = await User.findById(userId).select('subscription createdAt');
+        
+        let subscriptionData = currentUser ? currentUser.subscription.toObject() : null;
+        
+        // Data fix: If trial is set to a crazy far date (like 2125), show a realistic 30-day date from creation
+        if (subscriptionData && subscriptionData.plan === 'trial') {
+            const endsAt = new Date(subscriptionData.subscriptionEndsAt);
+            const aYearFromNow = new Date();
+            aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
+            
+            if (endsAt > aYearFromNow) {
+                const creationDate = currentUser.createdAt || new Date();
+                const fixedDate = new Date(creationDate);
+                fixedDate.setDate(fixedDate.getDate() + 30);
+                subscriptionData.subscriptionEndsAt = fixedDate;
+            }
+        }
+
+        // Fetch active broadcast message
+        const config = await SystemConfig.findOne();
+        let broadcast = config?.broadcastMessage?.active ? config.broadcastMessage : null;
+
+        // Check if message has expired
+        if (broadcast && broadcast.expiresAt && new Date() > new Date(broadcast.expiresAt)) {
+            broadcast = null;
+        }
 
         res.status(200).json({
             success: true,
             stats: { totalPatients, todayCases, pendingReview },
-            subscription: currentUser ? currentUser.subscription : null
+            subscription: subscriptionData,
+            broadcast
         });
     } catch (error) {
         console.error('Error fetching stats:', error);
