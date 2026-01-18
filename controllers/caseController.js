@@ -4,13 +4,21 @@ const { suggestRemedies } = require('../services/remedyService');
 const FormConfig = require('../models/FormConfig');
 
 // Helper to perform AI analysis and save to DB
-const performAnalysis = async (caseId, caseData) => {
+const performAnalysis = async (caseId, caseData, userId) => {
     try {
         console.log('Starting analysis for caseId:', caseId);
         // 1. Map labels for AI
         let labelMappedData = { ...caseData };
         try {
-            const config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
+            // Find relevant config: User specific or Global
+            let config = null;
+            if (userId) {
+                config = await FormConfig.findOne({ user: userId, isActive: true }).sort({ version: -1 });
+            }
+            if (!config) {
+                config = await FormConfig.findOne({ user: null, isActive: true }).sort({ version: -1 });
+            }
+
             if (config && config.sections) {
                 const labelMap = {};
                 config.sections.forEach(sec => {
@@ -101,7 +109,7 @@ exports.createCase = async (req, res) => {
         const savedCase = await newCase.save();
 
         // Trigger analysis
-        await performAnalysis(savedCase._id, caseData);
+        await performAnalysis(savedCase._id, caseData, userId);
 
         res.status(201).json({
             success: true,
@@ -124,7 +132,10 @@ exports.generateCaseSummary = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Case data is required' });
         }
 
-        const updatedCase = await performAnalysis(caseId, caseData);
+        const caseItem = await Case.findOne({ _id: caseId, user: req.user.id });
+        if (!caseItem) return res.status(404).json({ success: false, message: 'Case not found' });
+
+        const updatedCase = await performAnalysis(caseId, caseData, req.user.id);
         
         if (!updatedCase) {
             console.error('performAnalysis returned null for caseId:', caseId);
@@ -199,7 +210,7 @@ exports.updateCase = async (req, res) => {
         if (!caseItem) return res.status(404).json({ success: false, message: 'Case not found' });
 
         // Auto-update analysis
-        const updatedWithAnalysis = await performAnalysis(caseItem._id, caseData);
+        const updatedWithAnalysis = await performAnalysis(caseItem._id, caseData, userId);
         if (updatedWithAnalysis) caseItem = updatedWithAnalysis;
 
         res.status(200).json({
@@ -229,9 +240,14 @@ exports.getDashboardStats = async (req, res) => {
             summary: { $in: ['', null] }
         });
 
+        // Fetch user subscription details
+        const User = require('../models/User');
+        const currentUser = await User.findById(userId).select('subscription');
+
         res.status(200).json({
             success: true,
-            stats: { totalPatients, todayCases, pendingReview }
+            stats: { totalPatients, todayCases, pendingReview },
+            subscription: currentUser ? currentUser.subscription : null
         });
     } catch (error) {
         console.error('Error fetching stats:', error);

@@ -26,6 +26,7 @@ if (process.env.NODE_ENV !== 'test') {
 app.use('/api/case', caseRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/config', require('./routes/configRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Health Check & Landing Page
 app.get('/', (req, res) => {
@@ -135,7 +136,7 @@ app.get('/', (req, res) => {
 // Start Server
 if (require.main === module) {
     app.listen(PORT, () => {
-        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`Server running on port ${PORT}`);
     });
 }
 

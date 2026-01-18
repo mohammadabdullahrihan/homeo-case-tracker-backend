@@ -30,24 +30,41 @@ exports.register = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Check for admin secret to create Super Admin user directly
+        const role = req.body.adminSecret === (process.env.ADMIN_SECRET || 'rayyan_master_key') ? 'super_admin' : 'doctor';
+        const accountStatus = role === 'super_admin' ? 'approved' : 'pending';
+
         const user = await User.create({
             firstName,
             lastName,
             username,
-            password: hashedPassword
+            password: hashedPassword,
+            role,
+            accountStatus
         });
 
         if (user) {
-            res.status(201).json({
-                success: true,
-                token: generateToken(user._id),
-                user: {
-                    id: user._id,
-                    username: user.username,
-                    firstName: user.firstName,
-                    lastName: user.lastName
-                }
-            });
+            // If auto-approved (Super Admin), send token immediately
+            if (accountStatus === 'approved') {
+                res.status(201).json({
+                    success: true,
+                    token: generateToken(user._id),
+                    user: {
+                        id: user._id,
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
+                        role: user.role
+                    }
+                });
+            } else {
+                // For Doctors, send "Pending" response without token
+                res.status(201).json({
+                    success: true,
+                    message: 'Registration successful. Waiting for Admin Approval.',
+                    requiresApproval: true
+                });
+            }
         }
     } catch (error) {
         console.error('Registration Error:', error);
@@ -65,6 +82,15 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ username });
 
         if (user && (await bcrypt.compare(password, user.password))) {
+            // Check Account Status
+            if (user.accountStatus === 'pending') {
+                return res.status(403).json({ success: false, message: 'Your account is pending approval by the Admin.' });
+            }
+            if (user.accountStatus === 'rejected') {
+                return res.status(403).json({ success: false, message: 'Your account has been rejected. Contact support.' });
+            }
+
+            // Success
             res.json({
                 success: true,
                 token: generateToken(user._id),
@@ -72,7 +98,9 @@ exports.login = async (req, res) => {
                     id: user._id,
                     username: user.username,
                     firstName: user.firstName,
-                    lastName: user.lastName
+                    lastName: user.lastName,
+                    role: user.role, // Send role to frontend for routing
+                    status: user.accountStatus
                 }
             });
         } else {

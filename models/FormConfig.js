@@ -5,6 +5,11 @@ const formConfigSchema = new mongoose.Schema({
         type: Number,
         default: 1
     },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null // null implies Global Default Config
+    },
     isActive: {
         type: Boolean,
         default: true

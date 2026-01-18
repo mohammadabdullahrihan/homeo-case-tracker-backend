@@ -24,8 +24,31 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin'],
-        default: 'admin'
+        enum: ['super_admin', 'doctor'],
+        default: 'doctor'
+    },
+    accountStatus: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending' // Default pending for new registrations
+    },
+    subscription: {
+        plan: {
+            type: String,
+            enum: ['trial', 'monthly', 'yearly', 'lifetime'],
+            default: 'trial'
+        },
+        status: {
+            type: String,
+            enum: ['active', 'expired', 'cancelled'],
+            default: 'active'
+        },
+        trialEndsAt: {
+            type: Date
+        },
+        subscriptionEndsAt: {
+            type: Date
+        }
     },
     createdAt: {
         type: Date,

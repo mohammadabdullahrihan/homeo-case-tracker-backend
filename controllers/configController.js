@@ -4,14 +4,29 @@ const FormConfig = require('../models/FormConfig');
 exports.getConfig = async (req, res) => {
     console.log('GET CONFIG CALLED');
     try {
-        let config = await FormConfig.findOne({ isActive: true }).sort({ version: -1 });
+        const userId = req.user ? req.user.id : null;
+
+        // 1. Try to find user-specific config
+        let config = null;
+        if (userId) {
+            config = await FormConfig.findOne({ user: userId, isActive: true }).sort({ version: -1 });
+        }
+
+        // 2. If no user config, find global config
+        if (!config) {
+            config = await FormConfig.findOne({ user: null, isActive: true }).sort({ version: -1 });
+        }
 
         // Return null or empty if no config, frontend can handle or we can seed default
         if (!config) {
             return res.status(200).json({ success: true, config: null, message: "No configuration found" });
         }
 
-        res.status(200).json({ success: true, config });
+        // Add metadata to tell frontend if this is global or custom
+        const configData = config.toObject();
+        configData.isGlobal = !config.user;
+
+        res.status(200).json({ success: true, config: configData });
     } catch (error) {
         console.error('Error in getConfig:', error);
         res.status(500).json({ success: false, message: 'Server Error' });
@@ -29,7 +44,20 @@ exports.updateConfig = async (req, res) => {
         // Strategy: Find existing and update or create new
         // For MVP, lets just update the existing "active" one or create if none.
 
-        let config = await FormConfig.findOne({ isActive: true });
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        // Determine if we are updating Global (Super Admin only checks?)
+        // For now, assume any update from Dashboard -> User specific config.
+        // If Super Admin wants to update Global, we need a flag?
+        // Let's keep it simple: All updates via this route create/update USER config.
+        // Unless we add a specific admin route for global config.
+
+        // Update: User always modifies THEIR config.
+        // If they don't have one, we create one.
+        
+        // Check if user already has a config
+        let config = await FormConfig.findOne({ user: userId, isActive: true });
 
         if (config) {
             config.sections = sections;
@@ -37,7 +65,9 @@ exports.updateConfig = async (req, res) => {
             config.updatedAt = Date.now();
             await config.save();
         } else {
+            // Create new personal config
             config = await FormConfig.create({
+                user: userId,
                 sections,
                 version: 1,
                 isActive: true
@@ -99,7 +129,7 @@ exports.seedConfig = async (req, res) => {
             }
         ];
 
-        const config = await FormConfig.create({ sections: defaultSections });
+        const config = await FormConfig.create({ sections: defaultSections, user: null });
         res.status(201).json({ success: true, config });
 
     } catch (err) {

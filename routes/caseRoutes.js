@@ -1,16 +1,23 @@
 const express = require('express');
 const router = express.Router();
 const caseController = require('../controllers/caseController');
-
 const authMiddleware = require('../middleware/authMiddleware');
+const subscriptionMiddleware = require('../middleware/subscriptionMiddleware');
 
-router.post('/', authMiddleware, caseController.createCase);
-router.post('/summary', authMiddleware, caseController.generateCaseSummary);
-router.get('/', authMiddleware, caseController.getAllCases);
-router.get('/stats', authMiddleware, caseController.getDashboardStats);
-router.get('/:id', authMiddleware, caseController.getCaseById);
-router.put('/:id', authMiddleware, caseController.updateCase);
-router.put('/:id/symptoms', authMiddleware, caseController.updateSymptoms);
-router.delete('/:id', authMiddleware, caseController.deleteCase);
+// Protect all case routes
+// 1. Authenticate
+router.use(authMiddleware);
+
+// 2. Check Subscription (SaaS Lock)
+router.use(subscriptionMiddleware);
+
+router.post('/', caseController.createCase);
+router.post('/summary', caseController.generateCaseSummary);
+router.get('/', caseController.getAllCases);
+router.get('/stats', caseController.getDashboardStats);
+router.get('/:id', caseController.getCaseById);
+router.put('/:id', caseController.updateCase);
+router.put('/:id/symptoms', caseController.updateSymptoms);
+router.delete('/:id', caseController.deleteCase);
 
 module.exports = router;
