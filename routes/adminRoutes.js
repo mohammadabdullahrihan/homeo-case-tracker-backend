@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
 const {
-    getDoctors,
-    updateDoctorStatus,
-    updateDoctorSubscription,
-    resetDoctorPassword,
-    getAnalytics,
-    getSystemConfig,
-    updateSystemConfig,
-    setBroadcastMessage,
-    getActivityLogsController,
-    getActivityStatsController,
-    getSystemHealthController,
-    createBackupController,
-    listBackupsController,
-    exportDataController
+  getDoctors,
+  updateDoctorStatus,
+  updateDoctorSubscription,
+  resetDoctorPassword,
+  getAnalytics,
+  getSystemConfig,
+  updateSystemConfig,
+  setBroadcastMessage,
+  getActivityLogsController,
+  getActivityStatsController,
+  getSystemHealthController,
+  createBackupController,
+  listBackupsController,
+  exportDataController,
 } = require('../controllers/adminController');
 const authMiddleware = require('../middleware/authMiddleware');
 const adminMiddleware = require('../middleware/adminMiddleware');

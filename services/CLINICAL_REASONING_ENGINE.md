@@ -9,6 +9,7 @@ This service implements a sophisticated clinical reasoning system that mimics th
 **The system makes CLINICAL DECISIONS, not just calculations.**
 
 Unlike basic scoring systems that blindly count points, this engine:
+
 - Recognizes that ONE characteristic symptom outweighs multiple common symptoms
 - Detects and locks onto known remedy patterns
 - Applies symptom hierarchy (mental > physical, characteristic > common)
@@ -71,36 +72,42 @@ The system recognizes known remedy patterns and applies **PATTERN LOCK** when ma
 #### Defined Patterns:
 
 **Belladonna Pattern**
+
 - Keywords: sudden, throbbing, heat, red, violent, photophobia, no sweat, right sided
 - Minimum Match: 3 keywords
 - Description: "Sudden + Heat + Throbbing + No sweat"
 - Bonus: +50 points + additional +40 if strong acute pattern detected
 
 **Aconite Pattern**
+
 - Keywords: sudden, fear, anxiety, restless, panic, acute, onset
 - Minimum Match: 3 keywords
 - Description: "Sudden fear + restlessness + panic"
 - Bonus: +50 points
 
 **Arsenicum Album Pattern**
+
 - Keywords: burning, anxiety, restless, cold, thirst, midnight
 - Minimum Match: 3 keywords
 - Description: "Burning pain + anxiety + restlessness"
 - Bonus: +50 points
 
 **Bryonia Pattern**
+
 - Keywords: worse motion, better rest, irritable, thirst, dry, pressure
 - Minimum Match: 3 keywords
 - Description: "Worse from motion + irritability + dryness"
 - Bonus: +50 points
 
 **Pulsatilla Pattern**
+
 - Keywords: changeable, mild, weeping, thirstless, worse heat, better open air
 - Minimum Match: 3 keywords
 - Description: "Changeable + mild + thirstless + worse heat"
 - Bonus: +50 points
 
 **Nux Vomica Pattern**
+
 - Keywords: irritable, chilly, digestive, worse morning, stimulants
 - Minimum Match: 3 keywords
 - Description: "Irritability + chilly + digestive issues"
@@ -115,6 +122,7 @@ The system recognizes known remedy patterns and applies **PATTERN LOCK** when ma
 Not all Grade-3 rubrics are equal. The system applies intelligent grade weighting:
 
 **Grade Significance Multipliers:**
+
 - Grade 3 + Level 4 symptom (Decisive/Characteristic): **×2.5** (Massive boost)
 - Grade 3 + Level 3 symptom (Mental): **×1.5**
 - Grade 3 + Level 2 symptom (Physical General): **×1.5**
@@ -123,6 +131,7 @@ Not all Grade-3 rubrics are equal. The system applies intelligent grade weightin
 **Keynote Rubric Bonus:** Additional **×1.3** multiplier
 
 **Example:**
+
 - Grade 3 on "sudden throbbing headache" (Level 4) = 3 × 2.5 = 7.5 effective grade
 - Grade 3 on "headache" (Level 1) = 3 × 1.0 = 3.0 effective grade
 
@@ -133,6 +142,7 @@ Not all Grade-3 rubrics are equal. The system applies intelligent grade weightin
 Polychrests (big remedies) appear in many rubrics. Without characteristic dominance, they get penalized.
 
 **Big Remedies List:**
+
 - Belladonna
 - Sulphur
 - Calcarea Carbonica
@@ -143,6 +153,7 @@ Polychrests (big remedies) appear in many rubrics. Without characteristic domina
 - Pulsatilla
 
 **Normalization Rule:**
+
 - If big remedy appears broadly BUT has < 2 characteristic matches: **×0.85** penalty (15% reduction)
 - If big remedy has ≥ 2 characteristic matches: No penalty
 
@@ -174,6 +185,7 @@ AND no stronger contradictory pattern exists,
 THEN Belladonna MUST appear as Rank #1 with visible score separation.
 
 **Belladonna receives:**
+
 - +40 bonus if strong acute pattern detected
 - +15 bonus if patient type is 'acute'
 - +50 bonus if pattern lock achieved
@@ -266,11 +278,11 @@ const symptoms = [
   { text: 'heat without sweat', type: 'keynote' },
   { text: 'red face', type: 'physical' },
   { text: 'restlessness', type: 'mental' },
-  { text: 'violent pain', type: 'keynote' }
+  { text: 'violent pain', type: 'keynote' },
 ];
 
 const patientProfile = {
-  type: 'acute'  // or 'chronic'
+  type: 'acute', // or 'chronic'
 };
 
 const recommendations = suggestRemedies(symptoms, patientProfile, 10);
@@ -285,18 +297,21 @@ const recommendations = suggestRemedies(symptoms, patientProfile, 10);
 The system generates human-readable justifications:
 
 **Example 1 (Strong Pattern):**
+
 ```
-"Strong pattern match: Sudden + Heat + Throbbing + No sweat. 
-5 decisive/characteristic symptoms. 3 keynote matches. 
+"Strong pattern match: Sudden + Heat + Throbbing + No sweat.
+5 decisive/characteristic symptoms. 3 keynote matches.
 Classic acute presentation"
 ```
 
 **Example 2 (Good Coverage):**
+
 ```
 "4 decisive/characteristic symptoms. 2 keynote matches"
 ```
 
 **Example 3 (Basic):**
+
 ```
 "Good symptom coverage"
 ```
@@ -305,15 +320,15 @@ Classic acute presentation"
 
 ## Key Differences from Simple Scoring
 
-| Aspect | Simple Scoring | Clinical Reasoning Engine |
-|--------|---------------|---------------------------|
-| Symptom Weight | All equal | Hierarchical (4 levels) |
-| Grade Value | Fixed | Context-dependent |
-| Pattern Recognition | None | 6 major patterns |
-| Tie-Breaking | Random/None | 4-criteria system |
-| Big Remedy Handling | None | Normalized |
-| Acute Detection | None | 8-signal system |
-| Decision Making | Numerical only | Clinical judgment |
+| Aspect              | Simple Scoring | Clinical Reasoning Engine |
+| ------------------- | -------------- | ------------------------- |
+| Symptom Weight      | All equal      | Hierarchical (4 levels)   |
+| Grade Value         | Fixed          | Context-dependent         |
+| Pattern Recognition | None           | 6 major patterns          |
+| Tie-Breaking        | Random/None    | 4-criteria system         |
+| Big Remedy Handling | None           | Normalized                |
+| Acute Detection     | None           | 8-signal system           |
+| Decision Making     | Numerical only | Clinical judgment         |
 
 ---
 
@@ -331,6 +346,7 @@ For optimal performance, the repertory data should:
 ### Current Limitation
 
 The current repertory data (`repertory_full.json`) appears to have:
+
 - Single-word or remedy-name rubric titles
 - Non-standard format
 
@@ -358,6 +374,7 @@ node services/test_clinical_reasoning.js
 ```
 
 Expected behavior for classic Belladonna case:
+
 - **Rank #1:** Belladonna
 - **Clinical Score:** >200
 - **Pattern Locked:** Yes
@@ -383,9 +400,9 @@ To adjust scoring weights, modify the constants in the scoring formula section.
 
 ## Philosophy Summary
 
-> "This system thinks like a homeopath, not a calculator. 
-> It recognizes patterns, weighs characteristic symptoms heavily, 
-> and makes decisive clinical judgments. 
+> "This system thinks like a homeopath, not a calculator.
+> It recognizes patterns, weighs characteristic symptoms heavily,
+> and makes decisive clinical judgments.
 > The goal is ONE clear recommendation, not a list of possibilities."
 
 ---

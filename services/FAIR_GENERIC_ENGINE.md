@@ -5,6 +5,7 @@
 **ALL remedies are evaluated equally. NO remedy gets special treatment or fixed bonuses.**
 
 This engine implements a completely fair, dynamic, and generic scoring system where:
+
 - ✅ All remedies follow the same rules
 - ✅ Scoring is based purely on symptom matching and pattern recognition
 - ✅ Bonuses are dynamic and apply to ANY remedy that qualifies
@@ -21,6 +22,7 @@ baseScore = (Number of matched rubrics × 10) + Total grade of matched rubrics
 ```
 
 **Example:**
+
 - Remedy matches 5 rubrics with grades [3, 2, 3, 1, 2]
 - Base Score = (5 × 10) + (3+2+3+1+2) = 50 + 11 = 61
 
@@ -36,6 +38,7 @@ if (has mental symptoms) multiplier ×= 1.25
 ```
 
 **Example:**
+
 - Remedy has both keynote and mental symptoms
 - Multiplier = 1.0 × 1.5 × 1.25 = 1.875
 
@@ -45,18 +48,18 @@ if (has mental symptoms) multiplier ×= 1.25
 
 **10 Defined Patterns:**
 
-| Remedy | Pattern Keywords | Min Match | Acute? |
-|--------|-----------------|-----------|--------|
-| Belladonna | sudden, throbbing, heat, red, violent, photophobia, dry, right | 3 | ✓ |
-| Aconite | sudden, fear, anxiety, restless, panic, acute, onset, midnight | 3 | ✓ |
-| Arsenicum | burning, anxiety, restless, cold, thirst, midnight, fastidious | 3 | ✓ |
-| Bryonia | worse motion, better rest, irritable, thirst, dry, pressure, lying | 3 | ✓ |
-| Pulsatilla | changeable, mild, weeping, thirstless, worse heat, better open air, clingy | 3 | ✗ |
-| Nux Vomica | irritable, chilly, digestive, worse morning, stimulants, oversensitive | 3 | ✓ |
-| Sulphur | burning, heat, worse heat, itching, offensive, lazy, philosopher | 3 | ✗ |
-| Lycopodium | worse 4-8pm, right sided, digestive, bloating, anticipatory, cowardly | 3 | ✗ |
-| Phosphorus | burning, thirst cold water, hemorrhage, anxious, sympathetic, fears | 3 | ✗ |
-| Natrum Mur | grief, closed, worse consolation, worse sun, thirst, headache | 3 | ✗ |
+| Remedy     | Pattern Keywords                                                           | Min Match | Acute? |
+| ---------- | -------------------------------------------------------------------------- | --------- | ------ |
+| Belladonna | sudden, throbbing, heat, red, violent, photophobia, dry, right             | 3         | ✓      |
+| Aconite    | sudden, fear, anxiety, restless, panic, acute, onset, midnight             | 3         | ✓      |
+| Arsenicum  | burning, anxiety, restless, cold, thirst, midnight, fastidious             | 3         | ✓      |
+| Bryonia    | worse motion, better rest, irritable, thirst, dry, pressure, lying         | 3         | ✓      |
+| Pulsatilla | changeable, mild, weeping, thirstless, worse heat, better open air, clingy | 3         | ✗      |
+| Nux Vomica | irritable, chilly, digestive, worse morning, stimulants, oversensitive     | 3         | ✓      |
+| Sulphur    | burning, heat, worse heat, itching, offensive, lazy, philosopher           | 3         | ✗      |
+| Lycopodium | worse 4-8pm, right sided, digestive, bloating, anticipatory, cowardly      | 3         | ✗      |
+| Phosphorus | burning, thirst cold water, hemorrhage, anxious, sympathetic, fears        | 3         | ✗      |
+| Natrum Mur | grief, closed, worse consolation, worse sun, thirst, headache              | 3         | ✗      |
 
 **Pattern Bonus Formula:**
 
@@ -67,11 +70,13 @@ if (pattern matched) {
 ```
 
 **Match Strength:**
+
 ```javascript
 matchStrength = (matched keywords / total keywords) × 100  // 0-100%
 ```
 
 **Example:**
+
 - Belladonna pattern has 8 keywords
 - Patient symptoms contain 5 of them
 - Match Strength = (5/8) × 100 = 62.5%
@@ -82,10 +87,12 @@ matchStrength = (matched keywords / total keywords) × 100  // 0-100%
 ### 4️⃣ Acute/Chronic Bonus (Dynamic - ANY remedy can qualify)
 
 **Acute Case Detection:**
+
 - Detects 4 signals: sudden onset, violent intensity, rapid progression, acute keyword
 - If ≥2 signals present → Acute Case
 
 **Chronic Case Detection:**
+
 - Detects 4 signals: long standing, gradual onset, chronic keyword, constitutional
 - If ≥2 signals present → Chronic Case
 
@@ -104,6 +111,7 @@ if (patient type = 'chronic' AND case is chronic AND remedy is chronic remedy) {
 ```
 
 **Example:**
+
 - Patient has 4 acute signals (sudden, violent, rapid, acute keyword)
 - Remedy is marked as acute remedy (Belladonna, Aconite, Bryonia, etc.)
 - Acute Bonus = 10 + (4 × 7.5) = 10 + 30 = 40 points
@@ -115,6 +123,7 @@ if (patient type = 'chronic' AND case is chronic AND remedy is chronic remedy) {
 ### 5️⃣ Polychrest Normalization (Same for ALL polychrests)
 
 **Polychrest Remedies:**
+
 - Belladonna, Sulphur, Calcarea Carbonica, Lycopodium
 - Phosphorus, Natrum Muriaticum, Arsenicum Album, Pulsatilla
 - Nux Vomica, Bryonia, Sepia, Silicea
@@ -162,8 +171,8 @@ if (patient type matches remedy type) {
 ### 7️⃣ Final Score (Same formula for ALL remedies)
 
 ```javascript
-finalScore = ((baseScore + weightedIntensity) × multiplier × polyChrestPenalty) 
-             + patternBonus 
+finalScore = ((baseScore + weightedIntensity) × multiplier × polyChrestPenalty)
+             + patternBonus
              + acuteChronicBonus
 ```
 
@@ -172,6 +181,7 @@ finalScore = ((baseScore + weightedIntensity) × multiplier × polyChrestPenalty
 ## 📊 Complete Example
 
 **Patient Case:**
+
 - Type: Acute
 - Symptoms: sudden onset, throbbing headache, photophobia, heat, dry skin, restlessness
 
@@ -220,13 +230,13 @@ finalScore = ((baseScore + weightedIntensity) × multiplier × polyChrestPenalty
 
 ## 🎯 Key Differences from Previous Version
 
-| Aspect | Old (Biased) | New (Fair) |
-|--------|-------------|-----------|
-| Belladonna Bonus | Fixed +40 | Dynamic 10-40 (any acute remedy) |
-| Pattern Recognition | 6 remedies | 10 remedies (expandable) |
-| Acute Bonus | Belladonna only | ANY acute remedy |
-| Scoring | Special cases | Universal formula |
-| Tie-Breaking | Favored Belladonna | Equal criteria for all |
+| Aspect              | Old (Biased)       | New (Fair)                       |
+| ------------------- | ------------------ | -------------------------------- |
+| Belladonna Bonus    | Fixed +40          | Dynamic 10-40 (any acute remedy) |
+| Pattern Recognition | 6 remedies         | 10 remedies (expandable)         |
+| Acute Bonus         | Belladonna only    | ANY acute remedy                 |
+| Scoring             | Special cases      | Universal formula                |
+| Tie-Breaking        | Favored Belladonna | Equal criteria for all           |
 
 ---
 
@@ -284,6 +294,7 @@ node services/test_clinical_reasoning.js
 ```
 
 Expected behavior:
+
 - Different remedies rank #1 based on symptom matching
 - No remedy always wins
 - Scores reflect actual symptom coverage and pattern strength

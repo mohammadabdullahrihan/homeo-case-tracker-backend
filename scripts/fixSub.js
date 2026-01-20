@@ -7,19 +7,22 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/homeo-
 async function fixSub() {
   try {
     await mongoose.connect(MONGODB_URI);
-    
+
     const user = await User.findOne({ username: { $regex: /ziaul/i } });
-    if (!user) { console.log('User not found'); process.exit(1); }
+    if (!user) {
+      console.log('User not found');
+      process.exit(1);
+    }
 
     const nextMonth = new Date();
     nextMonth.setDate(nextMonth.getDate() + 30);
 
     // Force update subscription
     user.subscription = {
-        plan: 'trial',
-        status: 'active',
-        trialEndsAt: nextMonth,
-        subscriptionEndsAt: nextMonth
+      plan: 'trial',
+      status: 'active',
+      trialEndsAt: nextMonth,
+      subscriptionEndsAt: nextMonth,
     };
 
     await user.save();

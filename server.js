@@ -16,9 +16,10 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Database Connection
 if (process.env.NODE_ENV !== 'test') {
-    mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/homeo-case-tracker')
-        .then(() => console.log('✅ Connected to MongoDB'))
-        .catch((err) => console.error('❌ MongoDB connection error:', err));
+  mongoose
+    .connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/homeo-case-tracker')
+    .then(() => console.log('✅ Connected to MongoDB'))
+    .catch((err) => console.error('❌ MongoDB connection error:', err));
 }
 
 // Routes
@@ -30,7 +31,7 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 
 // Health Check & Landing Page
 app.get('/', (req, res) => {
-    const htmlContent = `
+  const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -130,14 +131,14 @@ app.get('/', (req, res) => {
     </body>
     </html>
     `;
-    res.send(htmlContent);
+  res.send(htmlContent);
 });
 
 // Start Server
 if (require.main === module) {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 }
 
 module.exports = app;

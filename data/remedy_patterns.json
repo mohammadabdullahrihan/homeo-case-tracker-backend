@@ -1,183 +1,120 @@
 {
-    "Belladonna": {
-        "keywords": [
-            "sudden",
-            "throbbing",
-            "heat",
-            "red",
-            "violent",
-            "photophobia",
-            "dry",
-            "right"
-        ],
-        "minMatch": 3,
-        "description": "Sudden + Heat + Throbbing + Dry",
-        "acuteRemedy": true
-    },
-    "Aconite": {
-        "keywords": [
-            "sudden",
-            "fear",
-            "anxiety",
-            "restless",
-            "panic",
-            "acute",
-            "onset",
-            "midnight"
-        ],
-        "minMatch": 3,
-        "description": "Sudden fear + Anxiety + Restlessness",
-        "acuteRemedy": true
-    },
-    "Arsenicum Album": {
-        "keywords": [
-            "burning",
-            "anxiety",
-            "restless",
-            "cold",
-            "thirst",
-            "midnight",
-            "fastidious"
-        ],
-        "minMatch": 3,
-        "description": "Burning + Anxiety + Restlessness + Midnight",
-        "acuteRemedy": true
-    },
-    "Bryonia": {
-        "keywords": [
-            "worse motion",
-            "better rest",
-            "irritable",
-            "thirst",
-            "dry",
-            "pressure",
-            "lying"
-        ],
-        "minMatch": 3,
-        "description": "Worse motion + Better rest + Dry + Irritable",
-        "acuteRemedy": true
-    },
-    "Pulsatilla": {
-        "keywords": [
-            "changeable",
-            "mild",
-            "weeping",
-            "thirstless",
-            "worse heat",
-            "better open air",
-            "clingy"
-        ],
-        "minMatch": 3,
-        "description": "Changeable + Mild + Thirstless + Worse heat",
-        "acuteRemedy": false
-    },
-    "Nux Vomica": {
-        "keywords": [
-            "irritable",
-            "chilly",
-            "digestive",
-            "worse morning",
-            "stimulants",
-            "oversensitive"
-        ],
-        "minMatch": 3,
-        "description": "Irritable + Chilly + Digestive + Oversensitive",
-        "acuteRemedy": true
-    },
-    "Sulphur": {
-        "keywords": [
-            "burning",
-            "heat",
-            "worse heat",
-            "itching",
-            "offensive",
-            "lazy",
-            "philosopher"
-        ],
-        "minMatch": 3,
-        "description": "Burning + Heat + Offensive + Lazy",
-        "acuteRemedy": false
-    },
-    "Lycopodium": {
-        "keywords": [
-            "worse 4-8pm",
-            "right sided",
-            "digestive",
-            "bloating",
-            "anticipatory",
-            "cowardly"
-        ],
-        "minMatch": 3,
-        "description": "Worse 4-8pm + Right sided + Digestive + Anticipatory",
-        "acuteRemedy": false
-    },
-    "Phosphorus": {
-        "keywords": [
-            "burning",
-            "thirst cold water",
-            "hemorrhage",
-            "anxious",
-            "sympathetic",
-            "fears"
-        ],
-        "minMatch": 3,
-        "description": "Burning + Thirst cold water + Anxious + Sympathetic",
-        "acuteRemedy": false
-    },
-    "Natrum Muriaticum": {
-        "keywords": [
-            "grief",
-            "closed",
-            "worse consolation",
-            "worse sun",
-            "thirst",
-            "headache"
-        ],
-        "minMatch": 3,
-        "description": "Grief + Closed + Worse consolation + Worse sun",
-        "acuteRemedy": false
-    },
-    "Tarentula Hispana": {
-        "keywords": [
-            "music",
-            "restless legs",
-            "fox",
-            "purple",
-            "septic",
-            "abrupt",
-            "sudden",
-            "violent"
-        ],
-        "minMatch": 3,
-        "description": "Music > + Restless legs + Sudden/Violent",
-        "acuteRemedy": true
-    },
-    "Gelsemium": {
-        "keywords": [
-            "dull",
-            "drowsy",
-            "dizzy",
-            "thirstless",
-            "heavy eyelids",
-            "trembling",
-            "bad news",
-            "slow"
-        ],
-        "minMatch": 3,
-        "description": "4D (Dull, Drowsy, Dizzy, Dumb) + Heavy eyelids",
-        "acuteRemedy": true
-    },
-    "Rhus Toxicodendron": {
-        "keywords": [
-            "better motion",
-            "worse rest",
-            "restless",
-            "rusty hinge",
-            "worse cold damp",
-            "tongue red triangle"
-        ],
-        "minMatch": 3,
-        "description": "Better motion + Worse rest + Restless",
-        "acuteRemedy": true
-    }
+  "Belladonna": {
+    "keywords": ["sudden", "throbbing", "heat", "red", "violent", "photophobia", "dry", "right"],
+    "minMatch": 3,
+    "description": "Sudden + Heat + Throbbing + Dry",
+    "acuteRemedy": true
+  },
+  "Aconite": {
+    "keywords": ["sudden", "fear", "anxiety", "restless", "panic", "acute", "onset", "midnight"],
+    "minMatch": 3,
+    "description": "Sudden fear + Anxiety + Restlessness",
+    "acuteRemedy": true
+  },
+  "Arsenicum Album": {
+    "keywords": ["burning", "anxiety", "restless", "cold", "thirst", "midnight", "fastidious"],
+    "minMatch": 3,
+    "description": "Burning + Anxiety + Restlessness + Midnight",
+    "acuteRemedy": true
+  },
+  "Bryonia": {
+    "keywords": ["worse motion", "better rest", "irritable", "thirst", "dry", "pressure", "lying"],
+    "minMatch": 3,
+    "description": "Worse motion + Better rest + Dry + Irritable",
+    "acuteRemedy": true
+  },
+  "Pulsatilla": {
+    "keywords": [
+      "changeable",
+      "mild",
+      "weeping",
+      "thirstless",
+      "worse heat",
+      "better open air",
+      "clingy"
+    ],
+    "minMatch": 3,
+    "description": "Changeable + Mild + Thirstless + Worse heat",
+    "acuteRemedy": false
+  },
+  "Nux Vomica": {
+    "keywords": [
+      "irritable",
+      "chilly",
+      "digestive",
+      "worse morning",
+      "stimulants",
+      "oversensitive"
+    ],
+    "minMatch": 3,
+    "description": "Irritable + Chilly + Digestive + Oversensitive",
+    "acuteRemedy": true
+  },
+  "Sulphur": {
+    "keywords": ["burning", "heat", "worse heat", "itching", "offensive", "lazy", "philosopher"],
+    "minMatch": 3,
+    "description": "Burning + Heat + Offensive + Lazy",
+    "acuteRemedy": false
+  },
+  "Lycopodium": {
+    "keywords": ["worse 4-8pm", "right sided", "digestive", "bloating", "anticipatory", "cowardly"],
+    "minMatch": 3,
+    "description": "Worse 4-8pm + Right sided + Digestive + Anticipatory",
+    "acuteRemedy": false
+  },
+  "Phosphorus": {
+    "keywords": ["burning", "thirst cold water", "hemorrhage", "anxious", "sympathetic", "fears"],
+    "minMatch": 3,
+    "description": "Burning + Thirst cold water + Anxious + Sympathetic",
+    "acuteRemedy": false
+  },
+  "Natrum Muriaticum": {
+    "keywords": ["grief", "closed", "worse consolation", "worse sun", "thirst", "headache"],
+    "minMatch": 3,
+    "description": "Grief + Closed + Worse consolation + Worse sun",
+    "acuteRemedy": false
+  },
+  "Tarentula Hispana": {
+    "keywords": [
+      "music",
+      "restless legs",
+      "fox",
+      "purple",
+      "septic",
+      "abrupt",
+      "sudden",
+      "violent"
+    ],
+    "minMatch": 3,
+    "description": "Music > + Restless legs + Sudden/Violent",
+    "acuteRemedy": true
+  },
+  "Gelsemium": {
+    "keywords": [
+      "dull",
+      "drowsy",
+      "dizzy",
+      "thirstless",
+      "heavy eyelids",
+      "trembling",
+      "bad news",
+      "slow"
+    ],
+    "minMatch": 3,
+    "description": "4D (Dull, Drowsy, Dizzy, Dumb) + Heavy eyelids",
+    "acuteRemedy": true
+  },
+  "Rhus Toxicodendron": {
+    "keywords": [
+      "better motion",
+      "worse rest",
+      "restless",
+      "rusty hinge",
+      "worse cold damp",
+      "tongue red triangle"
+    ],
+    "minMatch": 3,
+    "description": "Better motion + Worse rest + Restless",
+    "acuteRemedy": true
+  }
 }

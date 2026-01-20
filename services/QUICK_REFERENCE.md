@@ -8,13 +8,13 @@
 
 ```javascript
 const symptoms = [
-  { text: 'symptom description', type: 'keynote' },  // Characteristic
-  { text: 'symptom description', type: 'mental' },   // Mental/Emotional
-  { text: 'symptom description', type: 'physical' }  // Physical
+  { text: 'symptom description', type: 'keynote' }, // Characteristic
+  { text: 'symptom description', type: 'mental' }, // Mental/Emotional
+  { text: 'symptom description', type: 'physical' }, // Physical
 ];
 
 const patientProfile = {
-  type: 'acute'  // or 'chronic'
+  type: 'acute', // or 'chronic'
 };
 
 const results = suggestRemedies(symptoms, patientProfile, 10);
@@ -24,11 +24,11 @@ const results = suggestRemedies(symptoms, patientProfile, 10);
 
 ## Symptom Types Priority
 
-| Type | Priority | Examples |
-|------|----------|----------|
-| `keynote` | HIGHEST | Sudden onset, throbbing, photophobia, no sweat |
-| `mental` | HIGH | Anxiety, restlessness, irritability, fear |
-| `physical` | NORMAL | Headache, fever, cough, pain |
+| Type       | Priority | Examples                                       |
+| ---------- | -------- | ---------------------------------------------- |
+| `keynote`  | HIGHEST  | Sudden onset, throbbing, photophobia, no sweat |
+| `mental`   | HIGH     | Anxiety, restlessness, irritability, fear      |
+| `physical` | NORMAL   | Headache, fever, cough, pain                   |
 
 ---
 
@@ -42,14 +42,14 @@ const results = suggestRemedies(symptoms, patientProfile, 10);
 
 ## Pattern Recognition Quick Guide
 
-| Remedy | Pattern Keywords | Min Match |
-|--------|-----------------|-----------|
-| **Belladonna** | sudden, throbbing, heat, red, violent, photophobia, no sweat, right sided | 3 |
-| **Aconite** | sudden, fear, anxiety, restless, panic, acute, onset | 3 |
-| **Arsenicum** | burning, anxiety, restless, cold, thirst, midnight | 3 |
-| **Bryonia** | worse motion, better rest, irritable, thirst, dry, pressure | 3 |
-| **Pulsatilla** | changeable, mild, weeping, thirstless, worse heat, better open air | 3 |
-| **Nux Vomica** | irritable, chilly, digestive, worse morning, stimulants | 3 |
+| Remedy         | Pattern Keywords                                                          | Min Match |
+| -------------- | ------------------------------------------------------------------------- | --------- |
+| **Belladonna** | sudden, throbbing, heat, red, violent, photophobia, no sweat, right sided | 3         |
+| **Aconite**    | sudden, fear, anxiety, restless, panic, acute, onset                      | 3         |
+| **Arsenicum**  | burning, anxiety, restless, cold, thirst, midnight                        | 3         |
+| **Bryonia**    | worse motion, better rest, irritable, thirst, dry, pressure               | 3         |
+| **Pulsatilla** | changeable, mild, weeping, thirstless, worse heat, better open air        | 3         |
+| **Nux Vomica** | irritable, chilly, digestive, worse morning, stimulants                   | 3         |
 
 **Pattern Lock Bonus:** +50 points
 
@@ -75,14 +75,14 @@ Bonuses:
 
 ## Grade Significance
 
-| Grade | Symptom Level | Multiplier |
-|-------|--------------|------------|
-| 3 | Decisive/Characteristic | ×2.5 |
-| 3 | Mental/Emotional | ×1.5 |
-| 3 | Physical General | ×1.5 |
-| 3 | Common Local | ×1.0 |
-| 2 | Any | ×1.0 |
-| 1 | Any | ×1.0 |
+| Grade | Symptom Level           | Multiplier |
+| ----- | ----------------------- | ---------- |
+| 3     | Decisive/Characteristic | ×2.5       |
+| 3     | Mental/Emotional        | ×1.5       |
+| 3     | Physical General        | ×1.5       |
+| 3     | Common Local            | ×1.0       |
+| 2     | Any                     | ×1.0       |
+| 1     | Any                     | ×1.0       |
 
 **Keynote Rubric:** Additional ×1.3
 
@@ -139,10 +139,12 @@ Belladonna, Sulphur, Calcarea Carbonica, Lycopodium, Phosphorus, Natrum Muriatic
 ## Belladonna Special Rules
 
 **Triggers:**
+
 - Strong acute pattern detected (≥2 signals)
 - Belladonna matches symptoms
 
 **Bonuses:**
+
 - +40 for strong acute pattern
 - +15 for acute patient type
 - +50 if pattern locked
@@ -177,13 +179,14 @@ const symptoms = [
   { text: 'photophobia', type: 'keynote' },
   { text: 'heat without sweat', type: 'keynote' },
   { text: 'red face', type: 'physical' },
-  { text: 'violent pain', type: 'keynote' }
+  { text: 'violent pain', type: 'keynote' },
 ];
 
 const patientProfile = { type: 'acute' };
 ```
 
 **Expected Result:**
+
 - Rank #1: Belladonna
 - Score: 250-300
 - Pattern Locked: ✓
@@ -205,13 +208,13 @@ const patientProfile = { type: 'acute' };
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `remedyService.js` | Main implementation |
-| `CLINICAL_REASONING_ENGINE.md` | Full documentation |
-| `IMPLEMENTATION_SUMMARY.md` | Executive summary |
-| `QUICK_REFERENCE.md` | This file |
-| `test_clinical_reasoning.js` | Professional test suite |
+| File                           | Purpose                 |
+| ------------------------------ | ----------------------- |
+| `remedyService.js`             | Main implementation     |
+| `CLINICAL_REASONING_ENGINE.md` | Full documentation      |
+| `IMPLEMENTATION_SUMMARY.md`    | Executive summary       |
+| `QUICK_REFERENCE.md`           | This file               |
+| `test_clinical_reasoning.js`   | Professional test suite |
 
 ---
 
@@ -220,12 +223,14 @@ const patientProfile = { type: 'acute' };
 **Issue:** Belladonna not ranking #1 in acute case
 
 **Possible Causes:**
+
 1. Symptom text doesn't match repertory rubrics
 2. Not enough decisive keywords in symptoms
 3. Pattern not triggering (< 3 keyword matches)
 4. Repertory data format issue
 
 **Solution:**
+
 1. Use decisive keywords in symptom text
 2. Mark characteristic symptoms as 'keynote' type
 3. Set patient type to 'acute'
@@ -237,4 +242,4 @@ const patientProfile = { type: 'acute' };
 
 ---
 
-*Rayyan Quantum Labs - Homeopathic Clinical Reasoning Engine v1.0*
+_Rayyan Quantum Labs - Homeopathic Clinical Reasoning Engine v1.0_
