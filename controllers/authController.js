@@ -40,7 +40,10 @@ exports.register = async (req, res) => {
       req.body.adminSecret === (process.env.ADMIN_SECRET || 'rayyan_master_key')
         ? 'super_admin'
         : 'doctor';
-    const accountStatus = role === 'super_admin' ? 'approved' : 'pending';
+    // Auto-approve and start trial for everyone
+    const accountStatus = 'approved';
+    const trialEndsAt = new Date();
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
 
     const user = await User.create({
       firstName,
@@ -49,30 +52,26 @@ exports.register = async (req, res) => {
       password: hashedPassword,
       role,
       accountStatus,
+      subscription: {
+        plan: 'trial',
+        status: 'active',
+        trialEndsAt: trialEndsAt,
+        subscriptionEndsAt: trialEndsAt,
+      }
     });
 
     if (user) {
-      // If auto-approved (Super Admin), send token immediately
-      if (accountStatus === 'approved') {
-        res.status(201).json({
-          success: true,
-          token: generateToken(user._id),
-          user: {
-            id: user._id,
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            role: user.role,
-          },
-        });
-      } else {
-        // For Doctors, send "Pending" response without token
-        res.status(201).json({
-          success: true,
-          message: 'Registration successful. Waiting for Admin Approval.',
-          requiresApproval: true,
-        });
-      }
+      res.status(201).json({
+        success: true,
+        token: generateToken(user._id),
+        user: {
+          id: user._id,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role,
+        },
+      });
     }
   } catch (error) {
     console.error('Registration Error:', error);

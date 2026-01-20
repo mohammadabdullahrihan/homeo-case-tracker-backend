@@ -40,6 +40,7 @@ app.use('/api/case', caseRoutes);
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/config', require('./routes/configRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/payments', require('./routes/paymentRoutes'));
 
 // Health Check & Landing Page
 app.get('/', (req, res) => {

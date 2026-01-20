@@ -49,6 +49,16 @@ const updateDoctorStatus = async (req, res) => {
 
     doctor.accountStatus = status;
 
+    // Initialize subscription if it doesn't exist
+    if (!doctor.subscription) {
+      doctor.subscription = {
+        plan: 'trial',
+        status: 'inactive',
+        trialEndsAt: null,
+        subscriptionEndsAt: null
+      };
+    }
+
     // If approving, start trial
     if (status === 'approved' && doctor.subscription.plan === 'trial') {
       const trialDays = 30;
@@ -60,7 +70,7 @@ const updateDoctorStatus = async (req, res) => {
     }
 
     // If rejecting, cancel subscription
-    if (status === 'rejected') {
+    if (status === 'rejected' && doctor.subscription) {
       doctor.subscription.status = 'cancelled';
     }
 
@@ -83,6 +93,7 @@ const updateDoctorStatus = async (req, res) => {
 
     res.json({ success: true, data: doctor });
   } catch (error) {
+    console.error('Error updating doctor status:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -96,6 +107,16 @@ const updateDoctorSubscription = async (req, res) => {
     const doctor = await User.findById(id);
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
+    }
+
+    // Initialize subscription if it doesn't exist
+    if (!doctor.subscription) {
+      doctor.subscription = {
+        plan: 'trial',
+        status: 'inactive',
+        trialEndsAt: null,
+        subscriptionEndsAt: null
+      };
     }
 
     doctor.subscription.plan = plan;
@@ -129,6 +150,7 @@ const updateDoctorSubscription = async (req, res) => {
 
     res.json({ success: true, data: doctor });
   } catch (error) {
+    console.error('Error updating subscription:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -185,6 +207,15 @@ const getAnalytics = async (req, res) => {
     });
 
     const totalCases = await Case.countDocuments();
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+    const todayCases = await Case.countDocuments({ createdAt: { $gte: startOfToday } });
+    
+    // Exact revenue calculation from active subscriptions
+    const monthlySubs = await User.countDocuments({ role: 'doctor', 'subscription.plan': 'monthly', 'subscription.status': 'active' });
+    const yearlySubs = await User.countDocuments({ role: 'doctor', 'subscription.plan': 'yearly', 'subscription.status': 'active' });
+    const lifetimeSubs = await User.countDocuments({ role: 'doctor', 'subscription.plan': 'lifetime', 'subscription.status': 'active' });
+    const totalRevenue = (monthlySubs * 500) + (yearlySubs * 5000) + (lifetimeSubs * 15000);
 
     // Monthly growth (last 6 months)
     const sixMonthsAgo = new Date();
@@ -219,6 +250,8 @@ const getAnalytics = async (req, res) => {
           activeTrial,
           paidSubscribers,
           totalCases,
+          todayCases,
+          totalRevenue,
         },
         monthlyGrowth,
       },
