@@ -31,6 +31,7 @@ describe('Auth API Endpoints', () => {
         lastName: 'User',
         username: 'testuser',
         password: 'password123',
+        adminSecret: 'rayyan_master_key' // Use secret to get auto-approved and get a token
       });
 
       expect(res.statusCode).toEqual(201);
@@ -62,6 +63,7 @@ describe('Auth API Endpoints', () => {
         password: 'hashedpassword',
         firstName: 'Test',
         lastName: 'User',
+        accountStatus: 'approved' // Ensure status is approved
       };
       User.findOne.mockResolvedValue(mockUser);
       bcrypt.compare.mockResolvedValue(true);

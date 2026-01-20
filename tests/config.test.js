@@ -23,6 +23,7 @@ describe('Config API Endpoints', () => {
       const mockConfig = {
         isActive: true,
         sections: [{ id: 's1', title: 'Section 1', fields: [] }],
+        toObject: function() { return this; }
       };
       FormConfig.findOne.mockReturnValue({
         sort: jest.fn().mockResolvedValue(mockConfig),

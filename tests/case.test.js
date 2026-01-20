@@ -1,9 +1,15 @@
 const request = require('supertest');
-const app = require('../server');
-const Case = require('../models/Case');
-const FormConfig = require('../models/FormConfig');
-const aiService = require('../services/aiService');
-const remedyService = require('../services/remedyService');
+
+// Mock auth middleware
+jest.mock('../middleware/authMiddleware', () => (req, res, next) => {
+  req.user = { id: 'mock_user_id' };
+  next();
+});
+
+// Mock subscription middleware
+jest.mock('../middleware/subscriptionMiddleware', () => (req, res, next) => {
+  next();
+});
 
 // Mock models and services
 jest.mock('../models/Case');
@@ -11,11 +17,11 @@ jest.mock('../models/FormConfig');
 jest.mock('../services/aiService');
 jest.mock('../services/remedyService');
 
-// Mock auth middleware
-jest.mock('../middleware/authMiddleware', () => (req, res, next) => {
-  req.user = { id: 'mock_user_id' };
-  next();
-});
+const app = require('../server');
+const Case = require('../models/Case');
+const FormConfig = require('../models/FormConfig');
+const aiService = require('../services/aiService');
+const remedyService = require('../services/remedyService');
 
 describe('Case API Endpoints', () => {
   afterEach(() => {
@@ -24,8 +30,30 @@ describe('Case API Endpoints', () => {
 
   describe('POST /api/case', () => {
     it('should create a new case', async () => {
-      Case.prototype.save = jest.fn().mockResolvedValue({
+      // Mock saved case
+      const mockSavedCase = {
         _id: 'mock_case_id',
+        user: 'mock_user_id',
+        caseData: { name: 'John Doe' },
+        patientName: 'John Doe'
+      };
+      mockSavedCase.save = jest.fn().mockResolvedValue(mockSavedCase);
+      
+      // Need to mock Case constructor return value if we use 'new Case'
+      Case.mockImplementation(() => mockSavedCase);
+
+      // In createCase, it calls performAnalysis which needs mocks
+      FormConfig.findOne.mockReturnValue({
+        sort: jest.fn().mockResolvedValue(null)
+      });
+      aiService.generateSummary.mockResolvedValue({
+        summary: 'Test summary',
+        symptoms: ['symptom1']
+      });
+      remedyService.suggestRemedies.mockReturnValue([]);
+      Case.findByIdAndUpdate.mockResolvedValue({
+        _id: 'mock_case_id',
+        summary: 'Test summary'
       });
 
       const res = await request(app)
@@ -47,6 +75,7 @@ describe('Case API Endpoints', () => {
         { _id: '2', patientName: 'Jane', user: 'mock_user_id' },
       ];
       Case.find.mockReturnValue({
+        select: jest.fn().mockReturnThis(),
         sort: jest.fn().mockResolvedValue(mockCases),
       });
 
@@ -60,6 +89,9 @@ describe('Case API Endpoints', () => {
 
   describe('POST /api/case/summary', () => {
     it('should generate summary and remedies', async () => {
+      // In generateCaseSummary, it calls Case.findOne first
+      Case.findOne.mockResolvedValue({ _id: 'mock_case_id', user: 'mock_user_id' });
+
       FormConfig.findOne.mockReturnValue({
         sort: jest.fn().mockResolvedValue({
           sections: [
@@ -79,7 +111,13 @@ describe('Case API Endpoints', () => {
         { abbreviation: 'Ars', fullName: 'Arsenicum', score: 10 },
       ]);
 
-      Case.findByIdAndUpdate.mockResolvedValue(true);
+      const mockUpdatedCase = {
+        _id: 'mock_case_id',
+        summary: 'Test summary',
+        suggestedRemedies: [{ abbreviation: 'Ars', fullName: 'Arsenicum', score: 10 }],
+        symptoms: ['symptom1']
+      };
+      Case.findByIdAndUpdate.mockResolvedValue(mockUpdatedCase);
 
       const res = await request(app)
         .post('/api/case/summary')

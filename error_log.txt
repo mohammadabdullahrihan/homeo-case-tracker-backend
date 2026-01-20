@@ -83,3 +83,9 @@ Stack: Error: Failed to generate summary: [GoogleGenerativeAI Error]: Error fetc
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:34:28)
     at async exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:113:29)
+
+[2026-01-20T17:47:16.577Z] Controller Error: AI returned an empty or invalid response
+Stack: Error: AI returned an empty or invalid response
+    at performAnalysis (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:45:13)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at exports.generateCaseSummary (/Users/a/project/Rayyan Quantum Labs/homeo-case-tracker/homoeo-case-tracker-backend/controllers/caseController.js:143:25)
