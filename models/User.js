@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
   },
   accountStatus: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'suspended'],
     default: 'pending', // Default pending for new registrations
   },
   subscription: {

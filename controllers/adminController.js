@@ -42,6 +42,11 @@ const updateDoctorStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
+    const validStatuses = ['pending', 'approved', 'rejected', 'suspended'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: 'Invalid status value' });
+    }
+
     const doctor = await User.findById(id);
     if (!doctor) {
       return res.status(404).json({ success: false, message: 'Doctor not found' });
