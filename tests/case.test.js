@@ -51,7 +51,7 @@ describe('Case API Endpoints', () => {
         symptoms: ['symptom1']
       });
       remedyService.suggestRemedies.mockReturnValue([]);
-      Case.findByIdAndUpdate.mockResolvedValue({
+      Case.findOneAndUpdate.mockResolvedValue({
         _id: 'mock_case_id',
         summary: 'Test summary'
       });
@@ -117,7 +117,7 @@ describe('Case API Endpoints', () => {
         suggestedRemedies: [{ abbreviation: 'Ars', fullName: 'Arsenicum', score: 10 }],
         symptoms: ['symptom1']
       };
-      Case.findByIdAndUpdate.mockResolvedValue(mockUpdatedCase);
+      Case.findOneAndUpdate.mockResolvedValue(mockUpdatedCase);
 
       const res = await request(app)
         .post('/api/case/summary')

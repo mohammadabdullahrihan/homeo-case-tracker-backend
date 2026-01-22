@@ -64,7 +64,7 @@ describe('Full API Integration Test with Supertest', () => {
       suggestedRemedies: [{ shortName: 'Acon', fullName: 'Aconitum', score: 100 }],
       symptoms: [{ text: 'symptom1' }]
     };
-    Case.findByIdAndUpdate.mockResolvedValue(mockUpdatedCase);
+    Case.findOneAndUpdate.mockResolvedValue(mockUpdatedCase);
 
     const res = await request(app)
       .post('/api/case/summary')
